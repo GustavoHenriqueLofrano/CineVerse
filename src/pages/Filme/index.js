@@ -49,8 +49,6 @@ function Filme(){
       <h3>Sinopse</h3>
       <span>{filme.overview}</span>
 
-      <strong>Avalição: {filme.vote_average} / 10</strong>
-
     </div>
   )
 }
