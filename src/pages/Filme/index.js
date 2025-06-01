@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'
+import './filme.css'
 
 import api from '../../services/api';
 
