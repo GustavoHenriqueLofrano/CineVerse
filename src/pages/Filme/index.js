@@ -1,5 +1,5 @@
 import { useEffect, useState, } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, replace } from 'react-router-dom'
 import './filme.css'
 
 import api from '../../services/api';
@@ -8,7 +8,7 @@ function Filme(){
   const { id } = useParams();
   const [filme, setFilme] = useState({});
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const navigate = useNavigate
 
   useEffect(()=>{
     async function loadFilme(){
@@ -23,7 +23,9 @@ function Filme(){
         setLoading(false);
       })
       .catch(()=>{
-        console.log("FILME NAO ENCONTRADO")
+        navigate ("/", { replace: true})
+        return
+        
       })
     }
 
@@ -31,7 +33,7 @@ function Filme(){
 
 
     return () => {
-      navigate("/", {replace: true})
+      console.log("COMPONENTE FOI DESMONTADO")
     }
   }, [])
 
