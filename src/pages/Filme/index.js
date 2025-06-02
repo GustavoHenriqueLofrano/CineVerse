@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'
+import { useEffect, useState, } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'
 import './filme.css'
 
 import api from '../../services/api';
@@ -8,6 +8,7 @@ function Filme(){
   const { id } = useParams();
   const [filme, setFilme] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(()=>{
     async function loadFilme(){
@@ -30,7 +31,7 @@ function Filme(){
 
 
     return () => {
-      console.log("COMPONENTE FOI DESMONTADO")
+      navigate("./", {replace: true})
     }
   }, [])
 
@@ -47,8 +48,10 @@ function Filme(){
       <h1>{filme.title}</h1>
       <img src={`https://image.tmdb.org/t/p/original/${filme.backdrop_path}`} alt={filme.title} />
 
-      <h3>Sinopse</h3>
+      <h2>Sinopse</h2>
       <span>{filme.overview}</span>
+
+      <strong>{filme.vote_average.toFixed(1)}</strong>
 
     </div>
   )
