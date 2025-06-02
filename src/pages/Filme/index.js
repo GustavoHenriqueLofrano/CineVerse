@@ -31,7 +31,7 @@ function Filme(){
 
 
     return () => {
-      navigate("./", {replace: true})
+      navigate("/", {replace: true})
     }
   }, [])
 
