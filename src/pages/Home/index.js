@@ -1,27 +1,26 @@
-import { useEffect, useState} from 'react';
+import { useEffect, useState,} from 'react';
 import api from '../../services/api';
 import { Link } from 'react-router-dom';
 import './home.css';
 
 // URL DA API: /movie/now_playing?api_key=28fc232cc001c31e8a031f419d0a14ca&language=pt-BR
 
-function Home(){
+function Home() {
   const [filmes, setFilmes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
 
-  useEffect(()=>{
-
-    async function loadFilmes(){
+    async function loadFilmes() {
       const response = await api.get("movie/now_playing", {
-        params:{
-         api_key: "28fc232cc001c31e8a031f419d0a14ca",
-         language: "pt-BR",
-         page: 1,
+        params: {
+          api_key: "28fc232cc001c31e8a031f419d0a14ca",
+          language: "pt-BR",
+          page: 1,
         }
       })
 
-      
+
       setFilmes(response.data.results.slice(0, 10))
       setLoading(false);
 
@@ -32,28 +31,27 @@ function Home(){
   }, [])
 
 
-
-  if(loading){
-    return(
+  if (loading) {
+    return (
       <div className="loading">
         <h2>Carregando filmes...</h2>
       </div>
     )
   }
 
-  return(
+  return (
     <div className="container">
       <h2>Filmes em Cartaz</h2>
       <div className="lista-filmes">
         {filmes.map((filme) => {
-          return(
+          return (
             <article key={filme.id}>
               <strong>{filme.title}</strong>
               <Link to={`/filme/${filme.id}`}><img src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} alt={filme.title} /></Link>
-          
             </article>
           )
         })}
+
       </div>
     </div>
   )

@@ -1,29 +1,30 @@
 .container h2 {
-    display: flex;
-    font-size: 24px;
-    color: var(--color1);
-    margin-bottom: 10px;
-    position: relative;
-    justify-content: center;
-    margin: 0;
-    font-weight: bold;
-    letter-spacing: 1px;
-    
+  display: flex;
+  font-size: 24px;
+  color: var(--color1);
+  margin-bottom: 10px;
+  position: relative;
+  justify-content: center;
+  margin: 0;
+  font-weight: bold;
+  letter-spacing: 1px;
+
 }
 
-.lista-filmes{
+.lista-filmes {
   display: flex;
-  gap: 10px;
+  gap: 4px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   background-color: var(--color5);
   padding: 3px 3px;
   overflow: hidden;
   border-radius: 5px;
-  margin: 5px 10px;
+  margin: 5px 5px;
+  justify-content: center;
 }
 
-.loading{
+.loading {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,44 +32,45 @@
   margin: 10px;
 }
 
-.lista-filmes article{
-  display: block;
-  min-width: 100px;
-  width: 200px;
-  min-height: 100px;
-  height: 200px;
+.lista-filmes article {
+  display: flex;
+  min-width: 300px;
+  width: 300px;
+  min-height: 300px;
+  height: 300px;
   scroll-snap-align: start;
-  position: relative;
+  position: block;
   margin: 5px auto;
-  
+  gap: 4px;
 }
 
-.lista-filmes strong{
-  margin-bottom: 6px;
-  text-align: center;
+.lista-filmes strong {
   font-size: 12px;
   display: flex;
   color: var(--color1);
   align-items: center;
-  position: flex ;
   letter-spacing: 1px;
   font-weight: bold;
+  justify-content: center;
+
 }
 
-.lista-filmes img{
-  width: 90%;
-  height: 90%;
-  object-fit: cover;
-  display: block;
+.lista-filmes img {
+  height: auto;
+  object-fit: fill;
+  display: flex;
   border-radius: 8px;
   transition: all 0.3s ease;
   max-width: 100%;
+  min-width: 100%;
+  margin: 5px auto;
+  padding-bottom: 5px;
 }
+
 article img:hover {
   transform: scale(1.01) translateY(-5px);
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.3); 
-  filter: brightness(1.1); 
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
   opacity: 0.95;
   filter: brightness(1.0)
 }
-
