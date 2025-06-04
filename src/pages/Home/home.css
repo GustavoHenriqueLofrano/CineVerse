@@ -1,27 +1,26 @@
+
 .container h2 {
   display: flex;
-  font-size: 24px;
+  font-size: 30px;
   color: var(--color1);
   margin-bottom: 10px;
   position: relative;
   justify-content: center;
-  margin: 0;
   font-weight: bold;
   letter-spacing: 1px;
+  margin-top: 10px;
 
 }
 
 .lista-filmes {
   display: flex;
-  gap: 4px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  background-color: var(--color5);
+  background-color: var(--color3);
   padding: 3px 3px;
-  overflow: hidden;
   border-radius: 5px;
   margin: 5px 5px;
-  justify-content: center;
+  overflow-x: scroll;
+  height: auto;
+  width: auto;
 }
 
 .loading {
@@ -38,39 +37,69 @@
   width: 300px;
   min-height: 300px;
   height: 300px;
-  scroll-snap-align: start;
-  position: block;
   margin: 5px auto;
-  gap: 4px;
+  gap: 10px;
+  position: relative;
+  flex-direction: column;
+
 }
 
 .lista-filmes strong {
-  font-size: 12px;
-  display: flex;
+  font-size: 16px;
   color: var(--color1);
-  align-items: center;
-  letter-spacing: 1px;
-  font-weight: bold;
+  height: 0px;
+  display: flex;
   justify-content: center;
+  
+}
+.lista-filmes a{
+  gap: 10px;
+  border-radius: 15px;
+  padding: 5px;
+  height: auto;
+  display: block;
+  transition: all 0.3s ease;
 
 }
 
 .lista-filmes img {
-  height: auto;
-  object-fit: fill;
-  display: flex;
+  height: 100%;
+  object-fit: cover;
+  display: block;
   border-radius: 8px;
   transition: all 0.3s ease;
-  max-width: 100%;
-  min-width: 100%;
-  margin: 5px auto;
-  padding-bottom: 5px;
+  max-width: 100% ;
+  min-width: 100% ;
+  margin-top: 10px;
+
+
 }
 
 article img:hover {
-  transform: scale(1.01) translateY(-5px);
+  transform: scale(1.00) translateY(-1px);
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.3);
   filter: brightness(1.1);
   opacity: 0.95;
   filter: brightness(1.0)
+}
+article a {
+  overflow: hidden;
+}
+
+.lista-filmes::-webkit-scrollbar {
+  height: 8px;
+}
+
+.lista-filmes::-webkit-scrollbar-track {
+  background: var(--color3);
+  border-radius: 4px;
+}
+
+.lista-filmes::-webkit-scrollbar-thumb {
+  background: var(--color2);
+  border-radius: 4px;
+}
+
+.lista-filmes::-webkit-scrollbar-thumb:hover {
+  background: var(--color2);
 }

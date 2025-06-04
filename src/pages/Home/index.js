@@ -21,7 +21,7 @@ function Home() {
       })
 
 
-      setFilmes(response.data.results.slice(0, 10))
+      setFilmes(response.data.results.slice(0, 20))
       setLoading(false);
 
     }
@@ -47,7 +47,9 @@ function Home() {
           return (
             <article key={filme.id}>
               <strong>{filme.title}</strong>
-              <Link to={`/filme/${filme.id}`}><img src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} alt={filme.title} /></Link>
+              <Link to={`/filme/${filme.id}`}>
+              <img src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} alt={filme.title} />
+              </Link>
             </article>
           )
         })}

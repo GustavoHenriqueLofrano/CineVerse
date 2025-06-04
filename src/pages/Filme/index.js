@@ -1,8 +1,8 @@
 import { useEffect, useState, } from 'react';
 import { useParams, useNavigate} from 'react-router-dom'
 import './filme.css'
-
 import api from '../../services/api';
+import star from '../../services/images/star.png';
 
 function Filme(){
   const { id } = useParams();
@@ -45,15 +45,23 @@ function Filme(){
   }
   
   return(
-    <div className="filme-info">
-      <h1>{filme.title}</h1>
-      <img src={`https://image.tmdb.org/t/p/original/${filme.backdrop_path}`} alt={filme.title} />
+    <div className='container'>
+      <div className="filme-info">
+        <h1>{filme.title}</h1>
+      < img src={`https://image.tmdb.org/t/p/original/${filme.backdrop_path}`} alt={filme.title} />
 
-      <h2>Sinopse</h2>
-      <span>{filme.overview}</span>
+        <h2>Sinopse</h2>
+        <span>{filme.overview}</span>
 
-      <strong>{filme.vote_average.toFixed(1)}</strong>
+        
+        <strong><img src={star} alt="star" id="star"></img>{filme.vote_average.toFixed(1)}/10</strong>
 
+        <div className='botoes'>
+          <button>Salvar</button>
+          <button>Trailer</button>
+        </div>
+
+      </div>
     </div>
   )
 }
