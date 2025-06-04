@@ -15,12 +15,11 @@
 .lista-filmes {
   display: flex;
   background-color: var(--color3);
-  padding: 3px 3px;
   border-radius: 5px;
-  margin: 5px 5px;
+  margin: auto;
   overflow-x: scroll;
-  height: auto;
-  width: auto;
+  height: 100%;
+  width: 99,1%;
 }
 
 .loading {
@@ -53,7 +52,7 @@
   
 }
 .lista-filmes a{
-  gap: 10px;
+  gap: 12px;
   border-radius: 15px;
   padding: 5px;
   height: auto;
@@ -78,8 +77,8 @@
 article img:hover {
   transform: scale(1.00) translateY(-1px);
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.3);
-  filter: brightness(1.1);
-  opacity: 0.95;
+  filter: brightness(1.0);
+  opacity: 0.90;
   filter: brightness(1.0)
 }
 article a {
