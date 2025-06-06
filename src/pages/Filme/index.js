@@ -70,6 +70,23 @@ function Filme() {
     );
   }
 
+  function saveMovie() {
+      const myList = localStorage.getItem("@CineVerse");
+
+      let savedMovies = JSON.parse(myList) || [];
+
+      const hasMovie = savedMovies.some( (savedMovie) => savedMovie.id === filme.id ) 
+
+      if(hasMovie){
+        alert("filme ja salvo");
+        return
+      }
+      savedMovies.push(filme);
+      localStorage.setItem("@CineVerse", JSON.stringify(savedMovies));
+      alert("Filme Salvo!");
+      
+  }
+
   return (
     <div className='container'>
       <div className="filme-info">
@@ -85,7 +102,7 @@ function Filme() {
         </div>
 
         <div className='botoes'>
-          <button>Salvar</button>
+          <button onClick={saveMovie}>Salvar</button>
           {trailerKey && (
             <button onClick={handleTrailerClick}>
               Ver Trailer
@@ -100,7 +117,7 @@ function Filme() {
         </div>
       </div>
 
-      {}
+      { }
       {showTrailerModal && (
         <div className="trailer-modal">
           <div className="trailer-modal-content">
@@ -108,8 +125,8 @@ function Filme() {
               &times;
             </button>
             <iframe
-              width="600"
-              height="400"
+              width="560"
+              height="315"
               src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
               title={`${filme.title} Trailer`}
               frameBorder="0"

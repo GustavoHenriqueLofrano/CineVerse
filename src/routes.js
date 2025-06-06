@@ -6,6 +6,7 @@ import Filme from './pages/Filme';
 import Erro from './pages/Erro';
 
 import Header from './components/Header';
+import MeusFilmes from './pages/MeusFilmes';
 
 function RoutesApp(){
   return(
@@ -14,6 +15,7 @@ function RoutesApp(){
       <Routes>
         <Route path="/" element={ <Home/> } />
         <Route path="/filme/:id" element={ <Filme/> } />
+        <Route path="/MeusFilmes" element={ <MeusFilmes/> } />
 
         <Route path="*" element={ <Erro/> } />
       </Routes>

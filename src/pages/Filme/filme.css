@@ -66,11 +66,16 @@
     text-decoration: none;
     color: black;
 }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .botoes button:hover {
     background-color: var(--color2);
     color: var(--color5);
     transition: all 0.3s;
 }
+
 .botoes a:hover {
     color:var(--color5) ;
 }
@@ -129,9 +134,4 @@ z-index: 1000;
     height: auto;
     width: 90%;
   }
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
