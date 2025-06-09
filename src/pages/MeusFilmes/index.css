@@ -67,7 +67,8 @@
     
 }
 .my-movies button {
-    background-color: block;
+    background-color: transparent;
+    background: block;
     border: none;
     cursor: pointer;
     justify-content: center;

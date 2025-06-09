@@ -1,5 +1,5 @@
 .filme-info {
-    background-color: var(--color5);
+    background: linear-gradient(10deg, var(--color2) , var(--color5), var(--color5));
     border-radius: 10px;
     margin: 20px auto;
     flex-direction: column;
@@ -31,10 +31,11 @@
 }
 
 .filme-info span{
-    padding: 10px;
+    padding: 15px;
     margin: 10px auto;
     font-size: 15px;
     letter-spacing: 1px;
+    color: var(--color1);
 
 }
 .avaliacao {
@@ -78,6 +79,9 @@ button:disabled {
 
 .botoes a:hover {
     color:var(--color5) ;
+}
+.star{
+  color: rgb(243, 243, 14);
 }
 .trailer-modal {
   position: fixed;

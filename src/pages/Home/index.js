@@ -40,7 +40,7 @@ function Home() {
   }
 
   return (
-    <div className="container">
+    <div className="container-home">
       <h2>Filmes em Cartaz</h2>
       <div className="lista-filmes">
         {filmes.map((filme) => {

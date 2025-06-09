@@ -1,9 +1,15 @@
 
-.container h2 {
+.container-home {
+  background: linear-gradient(50deg, var(--color2) , var(--color5), var(--color5));
+}
+
+
+
+.container-home h2 {
   display: flex;
   font-size: 30px;
   color: var(--color1);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   position: relative;
   justify-content: center;
   font-weight: bold;
@@ -14,7 +20,7 @@
 
 .lista-filmes {
   display: flex;
-  background-color: var(--color3);
+  background-color: none;
   border-radius: 5px;
   margin: auto;
   overflow-x: scroll;
@@ -36,8 +42,9 @@
   max-width: 300px;
   min-height: 350px;
   max-height: 350px;
-  margin: 8px auto;
+  margin: auto 2px;
   gap: 6px;
+  padding-bottom: 6px;
   position: relative;
   flex-direction: column;
 }
@@ -48,7 +55,7 @@
   height: 0px;
   display: flex;
   justify-content: center;
-  line-height: 1.6;
+  line-height: 1.2;
   
 }
 .lista-filmes a{

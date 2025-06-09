@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './filme.css';
 import api from '../../services/api';
-import star from '../../services/images/star.png';
 import { ToastContainer, toast } from 'react-toastify';
+import { PiStarFill } from "react-icons/pi";
 
 function Filme() {
   const { id } = useParams();
@@ -98,7 +98,7 @@ function Filme() {
         <span>{filme.overview}</span>
 
         <div className="avaliacao">
-          <img src={star} alt="star" id="star"></img>
+          <span className='star'><PiStarFill /></span>
           <strong>{filme.vote_average.toFixed(1)}/10</strong>
         </div>
 
