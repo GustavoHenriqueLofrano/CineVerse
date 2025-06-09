@@ -1,6 +1,8 @@
 import '../MeusFilmes/index.css'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FaTrash } from 'react-icons/fa';
+import { FaTrashAlt } from "react-icons/fa";
 
 function MeusFilmes() {
     const [filmes, setFilmes] = useState([]);
@@ -39,7 +41,7 @@ function MeusFilmes() {
                             <div>
                                 <Link to={`/filme/${item.id}`}>detalhes</Link>
 
-                                <button onClick={() => ExcluirFilme(item.id)}>excluir</button>
+                                <button onClick={() => ExcluirFilme(item.id)} ><FaTrashAlt/> </button> 
 
                             </div>
                         </li>

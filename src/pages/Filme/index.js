@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './filme.css';
 import api from '../../services/api';
 import star from '../../services/images/star.png';
+import { ToastContainer, toast } from 'react-toastify';
 
 function Filme() {
   const { id } = useParams();

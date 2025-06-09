@@ -1,3 +1,21 @@
+/* Remove borda 
+  border: none;
+  /* Remove fundo 
+  background: none;
+  /* Remove padding padrão 
+  padding: 0;
+  /* Remove margem 
+  margin: 0;
+  /* Remove contorno ao clicar 
+  outline: none;
+  /* Remove cursor padrão (opcional, use com cuidado) 
+  cursor: default;
+  /* Reseta estilo de fonte (opcional) 
+  font: inherit;
+  /* Remove qualquer estilo de sombra ou efeito 3D 
+  box-shadow: none;
+*/
+
 .my-movies h1{
     display: flex;
     padding: auto;
@@ -28,17 +46,37 @@
 }
 .my-movies a {
     justify-content: left;
-    background-color: var(--color3);
+    background-color: var(--color5);
     text-decoration: none;
     color: var(--color1);
     margin-right: 25px;
     border-radius: 5px;
-    text-align: start;
+    align-items: center;
+    font-size: 16px;
+    text-align: center;
+    padding-right: 3px;
+    padding-left: 3px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    border: none;
+    
 }
 .my-movies span {
     color: var(--color1);
     font-size: 18px;
+    
 }
+.my-movies button {
+    background-color: block;
+    border: none;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: var(--color1);
+
+}
+
 .empty-list {
     margin: 25px auto;
     display: flex;
