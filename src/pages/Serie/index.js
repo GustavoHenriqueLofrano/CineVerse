@@ -25,34 +25,54 @@ function Serie() {
         setError({ message: '', code: null });
         
         // Buscar os detalhes completos da série
-        const response = await api.get(`/${media.media_type}/${id}`, {
-          params: {
-            ...API_CONFIG,
-            language: 'pt-BR',
-            append_to_response: 'credits,external_ids,images,videos,content_ratings'
+        try {
+          const response = await api.get(`/tv/${id}`, {
+            params: {
+              ...API_CONFIG,
+              language: 'pt-BR',
+              append_to_response: 'credits,external_ids,images,videos,content_ratings'
+            }
+          });
+
+          // Adicionar informações adicionais
+          const serieData = {
+            ...response.data,
+            // Converter datas para formato brasileiro
+            first_air_date: response.data.first_air_date ? 
+              new Date(response.data.first_air_date).toLocaleDateString('pt-BR') : 
+              'Data não disponível',
+            // Formatar número de temporadas
+            number_of_seasons: response.data.number_of_seasons || 0,
+            // Formatar número de episódios
+            number_of_episodes: response.data.number_of_episodes || 0
+          };
+
+          setSerie(serieData);
+        } catch (err) {
+          // Se falhar com /tv, tenta com /movie
+          try {
+            const response = await api.get(`/movie/${id}`, {
+              params: {
+                ...API_CONFIG,
+                language: 'pt-BR',
+                append_to_response: 'credits,external_ids,images,videos,content_ratings'
+              }
+            });
+
+            // Adicionar informações adicionais
+            const movieData = {
+              ...response.data,
+              // Converter datas para formato brasileiro
+              release_date: response.data.release_date ? 
+                new Date(response.data.release_date).toLocaleDateString('pt-BR') : 
+                'Data não disponível'
+            };
+
+            setSerie(movieData);
+          } catch (err2) {
+            throw new Error('Conteúdo não encontrado');
           }
-        });
-
-        // Adicionar informações adicionais
-        const serieData = {
-          ...response.data,
-          // Converter datas para formato brasileiro
-          first_air_date: response.data.first_air_date ? 
-            new Date(response.data.first_air_date).toLocaleDateString('pt-BR') : 
-            'Data não disponível',
-          // Formatar número de temporadas
-          number_of_seasons: response.data.number_of_seasons || 0,
-          // Formatar número de episódios
-          number_of_episodes: response.data.number_of_episodes || 0
-        };
-
-        setSerie(serieData);
-
-        // Encontra o primeiro resultado que corresponde ao ID
-        const media = response.data.results.find(item => 
-          item.id === parseInt(id) && 
-          (item.media_type === 'tv' || item.media_type === 'movie')
-        );
+        }
 
         if (!media) {
           throw new Error('Conteúdo não encontrado');
@@ -106,7 +126,9 @@ function Serie() {
   if (!serie) {
     return (
       <div className="error">
-        <h2>Série não encontrada</h2>
+        <h2>Conteúdo não encontrado</h2>
+        <p>Não foi possível encontrar informações sobre este conteúdo.</p>
+        <button onClick={() => navigate(-1)}>Voltar para os resultados</button>
       </div>
     );
   }
@@ -116,15 +138,19 @@ function Serie() {
       <div className="serie-content">
         <div className="serie-image">
           <img
-            src={`https://image.tmdb.org/t/p/w500${serie.poster_path}`}
-            alt={serie.name}
+            src={serie.poster_path ? `https://image.tmdb.org/t/p/w500${serie.poster_path}` : '/default-poster.png'}
+            alt={serie.name || 'Capa da série'}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/default-poster.png';
+            }}
           />
         </div>
         <div className="serie-info">
           <h1>{serie.name}</h1>
-          <p>{serie.overview}</p>
+          <p>{serie.overview || 'Sinopse não disponível'}</p>
           <div className="serie-details">
-            <p><strong>Primeira exibição:</strong> {serie.first_air_date}</p>
+            <p><strong>Primeira exibição:</strong> {serie.first_air_date || 'Data não disponível'}</p>
             <p><strong>Popularidade:</strong> {serie.popularity.toFixed(1)}</p>
             <p><strong>Nota:</strong> {serie.vote_average.toFixed(1)}</p>
           </div>
