@@ -1,6 +1,8 @@
-import { useEffect, useState,} from 'react';
+import { useEffect, useState, } from 'react';
 import api from '../../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { HiOutlineBan } from 'react-icons/hi';
+import { FaSearch } from 'react-icons/fa';
 import './home.css';
 
 // URL DA API: /movie/now_playing?api_key=28fc232cc001c31e8a031f419d0a14ca&language=pt-BR
@@ -8,6 +10,10 @@ import './home.css';
 function Home() {
   const [filmes, setFilmes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
 
@@ -30,6 +36,52 @@ function Home() {
 
   }, [])
 
+  async function handleSearch(item) {
+    item.preventDefault();
+    if (searchTerm.trim() === '') return;
+
+    try {
+      setLoading(true);
+      
+      // Buscar filmes e séries simultaneamente
+      const [movieResponse, tvResponse] = await Promise.all([
+        api.get("search/movie", {
+          params: {
+            api_key: "28fc232cc001c31e8a031f419d0a14ca",
+            language: "pt-BR",
+            query: searchTerm,
+            page: 1,
+          }
+        }),
+        api.get("search/tv", {
+          params: {
+            api_key: "28fc232cc001c31e8a031f419d0a14ca",
+            language: "pt-BR",
+            query: searchTerm,
+            page: 1,
+          }
+        })
+      ]);
+
+      // Combinar resultados de filmes e séries
+      const combinedResults = [...movieResponse.data.results, ...tvResponse.data.results];
+      
+      navigate(`/search/${searchTerm}`, { 
+        state: { 
+          results: combinedResults,
+          type: 'all',
+          searchTerm: searchTerm
+        } 
+      });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Erro ao buscar conteúdo:', error);
+      setLoading(false);
+    }
+  }
+
+
 
   if (loading) {
     return (
@@ -40,20 +92,73 @@ function Home() {
   }
 
   return (
-    <div className="container-home">
+    <div>
+      <div className="container-home">
       <h2>Filmes em Cartaz</h2>
-      <div className="lista-filmes">
-        {filmes.map((filme) => {
-          return (
-            <article key={filme.id}>
-              <strong>{filme.title}</strong>
-              <Link to={`/filme/${filme.id}`}>
-              <img src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} alt={filme.title} />
-              </Link>
-            </article>
-          )
-        })}
+        <div className="lista-filmes">
+          {filmes.map((filme) => {
+            return (
+              <article key={filme.id}>
+                <strong>{filme.title}</strong>
+                <Link to={`/filme/${filme.id}`}>
+                  <div className="movie-image-container">
+                    <img 
+                      src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} 
+                      alt={filme.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                        e.currentTarget.parentElement.querySelector('.fallback-icon').style.display = 'block';
+                      }}
+                    />
+                    <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
+                  </div>
+                </Link>
+              </article>
+            )
+          })}
+        </div>
+      </div>
+      <div>
+        <form onSubmit={handleSearch} className="search-form">
+          <div className="search-input-container">
+            <input
+              type="text"
+              placeholder="Pesquisar filmes..."
+              value={searchTerm}
+              onChange={(item) => setSearchTerm(item.target.value)}
+              className="search-input"
+            />
+            <button type="submit"><FaSearch className="search-icon" /></button>
+          </div>
+        </form>
 
+        {searchTerm && (
+          <div className="search-results">
+            <div className="movie-grid">
+              {searchResults.map((filme) => (
+                <div key={filme.id} className="movie-card">
+                  <Link to={`/filme/${filme.id}`}>
+                    <div className="movie-image-container">
+                      <img
+                        src={`https://image.tmdb.org/t/p/w500${filme.poster_path}`}
+                        alt={filme.title}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = 'none';
+                          e.currentTarget.parentElement.querySelector('.fallback-icon').style.display = 'block';
+                        }}
+                      />
+                      <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
+                    </div>
+                  </Link>
+                  <h3>{filme.title}</h3>
+                  <p>{filme.overview.substring(0, 10)}...</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
