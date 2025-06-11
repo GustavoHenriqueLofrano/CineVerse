@@ -19,28 +19,38 @@ function Serie() {
   });
 
   useEffect(() => {
-    async function fetchSerie() {
+    async function fetchMedia() {
       try {
         setLoading(true);
         setError({ message: '', code: null });
         
+        // Primeiro tenta como série
         const response = await api.get(`/tv/${id}`, {
           params: API_CONFIG
         });
         
         setSerie(response.data);
       } catch (err) {
-        const errorMessage = err.response?.data?.status_message || 'Erro ao carregar a série';
-        setError({
-          message: errorMessage,
-          code: err.response?.status || 500
-        });
+        // Se falhar como série, tenta como filme
+        try {
+          const response = await api.get(`/movie/${id}`, {
+            params: API_CONFIG
+          });
+          
+          setSerie(response.data);
+        } catch (err2) {
+          const errorMessage = err2.response?.data?.status_message || 'Erro ao carregar o conteúdo';
+          setError({
+            message: errorMessage,
+            code: err2.response?.status || 500
+          });
+        }
       } finally {
         setLoading(false);
       }
     }
 
-    fetchSerie();
+    fetchMedia();
   }, [id]);
 
   if (loading) {
