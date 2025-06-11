@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useNavigate } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import './serie.css';
@@ -70,23 +70,13 @@ function Serie() {
 
             setSerie(movieData);
           } catch (err2) {
-            throw new Error('Conteúdo não encontrado');
+            setError({
+              message: 'Conteúdo não encontrado',
+              code: err2.response?.status || 404,
+              details: err2.response?.data || {}
+            });
           }
         }
-
-        if (!media) {
-          throw new Error('Conteúdo não encontrado');
-        }
-
-        // Busca os detalhes completos baseado no tipo de mídia
-        const detailsResponse = await api.get(`/${media.media_type}/${id}`, {
-          params: {
-            ...API_CONFIG,
-            append_to_response: 'credits,videos,images'
-          }
-        });
-
-        setSerie(detailsResponse.data);
       } catch (err) {
         const errorMessage = err.response?.data?.status_message || 'Erro ao carregar o conteúdo';
         setError({
@@ -128,7 +118,7 @@ function Serie() {
       <div className="error">
         <h2>Conteúdo não encontrado</h2>
         <p>Não foi possível encontrar informações sobre este conteúdo.</p>
-        <button onClick={() => navigate(-1)}>Voltar para os resultados</button>
+        <button onClick={() => window.history.back()}>Voltar para os resultados</button>
       </div>
     );
   }
