@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
 import Filme from './pages/Filme';
+import Serie from './pages/Serie';
 import SearchResults from './pages/SearchResults';
 
 import Erro from './pages/Erro';
@@ -16,6 +17,7 @@ function RoutesApp(){
       <Routes>
         <Route path="/" element={ <Home/> } />
         <Route path="/filme/:id" element={ <Filme/> } />
+        <Route path="/serie/:id" element={ <Serie/> } />
         <Route path="/MeusFilmes" element={ <MeusFilmes/> } />
         <Route path="/search/:term" element={ <SearchResults/> } />
 

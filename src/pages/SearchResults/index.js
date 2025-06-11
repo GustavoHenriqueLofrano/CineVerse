@@ -52,11 +52,11 @@ function SearchResults() {
         <div className="movie-grid">
           {results.slice(0, 100).map((filme) => (
             <div key={filme.id} className="movie-card">
-              <Link to={`/filme/${filme.id}`}>
+              <Link to={filme.media_type === 'tv' ? `/serie/${filme.id}` : `/filme/${filme.id}`}>
                 <div className="movie-image-container">
                   <img
                     src={`https://image.tmdb.org/t/p/w500${filme.poster_path}`}
-                    alt={filme.title}
+                    alt={filme.media_type === 'tv' ? filme.name : filme.title}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.style.display = 'none';
@@ -65,9 +65,8 @@ function SearchResults() {
                   />
                   <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
                 </div>
-                <h3>{filme.title}</h3>
-                <p>{filme.overview.substring(0, 10
-                )}...</p>
+                <h3>{filme.media_type === 'tv' ? filme.name : filme.title}</h3>
+                <p>{filme.overview.substring(0, 100)}...</p>
               </Link>
             </div>
           ))}
