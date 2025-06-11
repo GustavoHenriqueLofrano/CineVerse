@@ -3,25 +3,39 @@ import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import './serie.css';
 
+// Configuração da API
+const API_CONFIG = {
+  key: "28fc232cc001c31e8a031f419d0a14ca",
+  language: "pt-BR"
+};
+
 function Serie() {
   const { id } = useParams();
-  const [serie, setSerie] = useState(null);
+  const [serie, setSerie] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState({
+    message: '',
+    code: null
+  });
 
   useEffect(() => {
     async function fetchSerie() {
       try {
+        setLoading(true);
+        setError({ message: '', code: null });
+        
         const response = await api.get(`/tv/${id}`, {
-          params: {
-            api_key: "28fc232cc001c31e8a031f419d0a14ca",
-            language: "pt-BR",
-          }
+          params: API_CONFIG
         });
+        
         setSerie(response.data);
-        setLoading(false);
       } catch (err) {
-        setError('Erro ao carregar a série');
+        const errorMessage = err.response?.data?.status_message || 'Erro ao carregar a série';
+        setError({
+          message: errorMessage,
+          code: err.response?.status || 500
+        });
+      } finally {
         setLoading(false);
       }
     }
@@ -32,6 +46,7 @@ function Serie() {
   if (loading) {
     return (
       <div className="loading">
+        <div className="loading-spinner"></div>
         <h2>Carregando...</h2>
       </div>
     );
