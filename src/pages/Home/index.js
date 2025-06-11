@@ -63,8 +63,17 @@ function Home() {
         })
       ]);
 
-      // Combinar resultados de filmes e séries
-      const combinedResults = [...movieResponse.data.results, ...tvResponse.data.results];
+      // Adicionar media_type aos resultados e combiná-los
+      const combinedResults = [
+        ...movieResponse.data.results.map(movie => ({
+          ...movie,
+          media_type: 'movie'
+        })),
+        ...tvResponse.data.results.map(tv => ({
+          ...tv,
+          media_type: 'tv'
+        }))
+      ];
       
       navigate(`/search/${searchTerm}`, { 
         state: { 

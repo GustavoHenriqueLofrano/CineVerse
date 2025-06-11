@@ -24,27 +24,56 @@ function Serie() {
         setLoading(true);
         setError({ message: '', code: null });
         
-        // Primeiro tenta como série
-        const response = await api.get(`/tv/${id}`, {
-          params: API_CONFIG
+        // Buscar os detalhes completos da série
+        const response = await api.get(`/${media.media_type}/${id}`, {
+          params: {
+            ...API_CONFIG,
+            language: 'pt-BR',
+            append_to_response: 'credits,external_ids,images,videos,content_ratings'
+          }
         });
-        
-        setSerie(response.data);
-      } catch (err) {
-        // Se falhar como série, tenta como filme
-        try {
-          const response = await api.get(`/movie/${id}`, {
-            params: API_CONFIG
-          });
-          
-          setSerie(response.data);
-        } catch (err2) {
-          const errorMessage = err2.response?.data?.status_message || 'Erro ao carregar o conteúdo';
-          setError({
-            message: errorMessage,
-            code: err2.response?.status || 500
-          });
+
+        // Adicionar informações adicionais
+        const serieData = {
+          ...response.data,
+          // Converter datas para formato brasileiro
+          first_air_date: response.data.first_air_date ? 
+            new Date(response.data.first_air_date).toLocaleDateString('pt-BR') : 
+            'Data não disponível',
+          // Formatar número de temporadas
+          number_of_seasons: response.data.number_of_seasons || 0,
+          // Formatar número de episódios
+          number_of_episodes: response.data.number_of_episodes || 0
+        };
+
+        setSerie(serieData);
+
+        // Encontra o primeiro resultado que corresponde ao ID
+        const media = response.data.results.find(item => 
+          item.id === parseInt(id) && 
+          (item.media_type === 'tv' || item.media_type === 'movie')
+        );
+
+        if (!media) {
+          throw new Error('Conteúdo não encontrado');
         }
+
+        // Busca os detalhes completos baseado no tipo de mídia
+        const detailsResponse = await api.get(`/${media.media_type}/${id}`, {
+          params: {
+            ...API_CONFIG,
+            append_to_response: 'credits,videos,images'
+          }
+        });
+
+        setSerie(detailsResponse.data);
+      } catch (err) {
+        const errorMessage = err.response?.data?.status_message || 'Erro ao carregar o conteúdo';
+        setError({
+          message: errorMessage,
+          code: err.response?.status || 500,
+          details: err.response?.data || {}
+        });
       } finally {
         setLoading(false);
       }
@@ -65,7 +94,11 @@ function Serie() {
   if (error) {
     return (
       <div className="error">
-        <h2>{error}</h2>
+        <h2>{error.message}</h2>
+        {error.details && error.details.status_message && (
+          <p>{error.details.status_message}</p>
+        )}
+        <button onClick={() => window.location.reload()}>Tentar novamente</button>
       </div>
     );
   }

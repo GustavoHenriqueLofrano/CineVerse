@@ -17,7 +17,7 @@ function RoutesApp(){
       <Routes>
         <Route path="/" element={ <Home/> } />
         <Route path="/filme/:id" element={ <Filme/> } />
-        <Route path="/serie/:id" element={ <Serie/> } />
+        <Route path="/tv/:id" element={ <Serie/> } />
         <Route path="/MeusFilmes" element={ <MeusFilmes/> } />
         <Route path="/search/:term" element={ <SearchResults/> } />
 

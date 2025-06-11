@@ -28,6 +28,7 @@ function SearchResults() {
   if (loading) {
     return (
       <div className="loading">
+        <div className="loading-spinner"></div>
         <h2>Carregando resultados...</h2>
       </div>
     );
@@ -36,7 +37,9 @@ function SearchResults() {
   if (error) {
     return (
       <div className="error">
-        <h2>{error}</h2>
+        <h2>Ocorreu um erro</h2>
+        <p>{error.message || 'Erro ao carregar os resultados'}</p>
+        <button onClick={() => window.location.reload()}>Tentar novamente</button>
       </div>
     );
   }
@@ -45,28 +48,29 @@ function SearchResults() {
     <div className="container-search-results">
       {results.length === 0 ? (
         <div className="no-results">
-          <p>Nenhum filme encontrado com esse termo de busca.</p>
-          <button onClick={() => navigate(-1)}>Voltar</button>
+          <p>Nenhum resultado encontrado com esse termo de busca.</p>
+          <p>Tente uma busca diferente ou verifique a ortografia.</p>
+          <button onClick={() => navigate(-1)}>Voltar para Home</button>
         </div>
       ) : (
         <div className="movie-grid">
           {results.slice(0, 100).map((filme) => (
             <div key={filme.id} className="movie-card">
-              <Link to={filme.media_type === 'tv' ? `/serie/${filme.id}` : `/filme/${filme.id}`}>
+              <Link to={filme.media_type === 'tv' ? `/tv/${filme.id}` : `/filme/${filme.id}`}>
                 <div className="movie-image-container">
                   <img
                     src={`https://image.tmdb.org/t/p/w500${filme.poster_path}`}
                     alt={filme.media_type === 'tv' ? filme.name : filme.title}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.style.display = 'none';
-                      e.currentTarget.parentElement.querySelector('.fallback-icon').style.display = 'block';
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement.querySelector('.fallback-icon').style.display = 'flex';
                     }}
                   />
-                  <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
+                  <HiOutlineBan className="fallback-icon" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }} />
                 </div>
                 <h3>{filme.media_type === 'tv' ? filme.name : filme.title}</h3>
-                <p>{filme.overview.substring(0, 100)}...</p>
+                <p>{filme.overview ? `${filme.overview.substring(0, 150)}...` : 'Sinopse não disponível'}</p>
               </Link>
             </div>
           ))}
