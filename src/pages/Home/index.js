@@ -7,11 +7,14 @@ import './home.css';
 
 // URL DA API: /movie/now_playing?api_key=28fc232cc001c31e8a031f419d0a14ca&language=pt-BR
 
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY || 'sua-chave-api-aqui';
+
 function Home() {
   const [filmes, setFilmes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -20,7 +23,7 @@ function Home() {
     async function loadFilmes() {
       const response = await api.get("movie/now_playing", {
         params: {
-          api_key: "28fc232cc001c31e8a031f419d0a14ca",
+          api_key: API_KEY,
           language: "pt-BR",
           page: 1,
         }
@@ -47,7 +50,7 @@ function Home() {
       const [movieResponse, tvResponse] = await Promise.all([
         api.get("search/movie", {
           params: {
-            api_key: "28fc232cc001c31e8a031f419d0a14ca",
+            api_key: API_KEY,
             language: "pt-BR",
             query: searchTerm,
             page: 1,
@@ -55,7 +58,7 @@ function Home() {
         }),
         api.get("search/tv", {
           params: {
-            api_key: "28fc232cc001c31e8a031f419d0a14ca",
+            api_key: API_KEY,
             language: "pt-BR",
             query: searchTerm,
             page: 1,
@@ -86,6 +89,7 @@ function Home() {
       setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar conteúdo:', error);
+      setError('Erro ao buscar conteúdo. Tente novamente.');
       setLoading(false);
     }
   }
@@ -129,6 +133,7 @@ function Home() {
         </div>
       </div>
       <div>
+        {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSearch} className="search-form">
           <div className="search-input-container">
             <input
@@ -161,7 +166,7 @@ function Home() {
                       <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
                     </div>
                   </Link>
-                  <h3>{filme.title}</h3>
+                  <h3>{filme.media_type === 'tv' ? filme.name : filme.title}</h3>
                   <p>{filme.overview.substring(0, 10)}...</p>
                 </div>
               ))}

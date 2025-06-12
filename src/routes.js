@@ -10,18 +10,18 @@ import Erro from './pages/Erro';
 import Header from './components/Header';
 import MeusFilmes from './pages/MeusFilmes';
 
-function RoutesApp(){
-  return(
+function RoutesApp() {
+  return (
     <BrowserRouter>
-      <Header/>
+      <Header />
       <Routes>
-        <Route path="/" element={ <Home/> } />
-        <Route path="/filme/:id" element={ <Filme/> } />
-        <Route path="/tv/:id" element={ <Serie/> } />
-        <Route path="/MeusFilmes" element={ <MeusFilmes/> } />
-        <Route path="/search/:term" element={ <SearchResults/> } />
+        <Route path="/" element={<Home />} />
+        <Route path="/filme/:id" element={<Filme />} />
+        <Route path="/serie/:id" element={<Serie />} />
+        <Route path="/MeusFilmes" element={<MeusFilmes />} />
+        <Route path="/search/:term" element={<SearchResults />} />
 
-        <Route path="*" element={ <Erro/> } />
+        <Route path="*" element={<Erro />} />
       </Routes>
     </BrowserRouter>
   )

@@ -2,94 +2,72 @@ import { useEffect, useState, useNavigate } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import './serie.css';
-
-// Configuração da API
-const API_CONFIG = {
-  key: "28fc232cc001c31e8a031f419d0a14ca",
-  language: "pt-BR"
-};
+import { PiStarFill } from "react-icons/pi";
 
 function Serie() {
   const { id } = useParams();
   const [serie, setSerie] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState({
-    message: '',
-    code: null
-  });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchMedia() {
+    if (!id) {
+      setError('ID da série não encontrado na URL');
+      setLoading(false);
+      return;
+    }
+
+    const serieId = id.split('-')[0];
+    console.log('Buscando série com ID:', serieId);
+
+    async function fetchSerie() {
       try {
         setLoading(true);
-        setError({ message: '', code: null });
+        setError(null);
+        const response = await api.get(`/tv/${serieId}`, {
+          params: {
+            append_to_response: 'credits,external_ids,images,videos,content_ratings'
+          }
+        });
         
-        // Buscar os detalhes completos da série
-        try {
-          const response = await api.get(`/tv/${id}`, {
-            params: {
-              ...API_CONFIG,
-              language: 'pt-BR',
-              append_to_response: 'credits,external_ids,images,videos,content_ratings'
+        // Formatar os dados da série
+        const serieData = {
+          ...response.data,
+          // Converter datas para formato brasileiro
+          first_air_date: response.data.first_air_date ? 
+            new Date(response.data.first_air_date).toLocaleDateString('pt-BR') : 
+            'Data não disponível',
+          // Formatar número de temporadas
+          number_of_seasons: response.data.number_of_seasons || 0,
+          // Formatar número de episódios
+          number_of_episodes: response.data.number_of_episodes || 0
+        };
+
+        setSerie(serieData);
+      } catch (err) {
+        console.error('Erro:', err);
+        if (err.response?.status === 401) {
+          setError({
+            message: 'API inválida. Por favor, configure uma chave de API válida.',
+            code: 401,
+            details: {
+              status: 'invalid_api_key'
             }
           });
-
-          // Adicionar informações adicionais
-          const serieData = {
-            ...response.data,
-            // Converter datas para formato brasileiro
-            first_air_date: response.data.first_air_date ? 
-              new Date(response.data.first_air_date).toLocaleDateString('pt-BR') : 
-              'Data não disponível',
-            // Formatar número de temporadas
-            number_of_seasons: response.data.number_of_seasons || 0,
-            // Formatar número de episódios
-            number_of_episodes: response.data.number_of_episodes || 0
-          };
-
-          setSerie(serieData);
-        } catch (err) {
-          // Se falhar com /tv, tenta com /movie
-          try {
-            const response = await api.get(`/movie/${id}`, {
-              params: {
-                ...API_CONFIG,
-                language: 'pt-BR',
-                append_to_response: 'credits,external_ids,images,videos,content_ratings'
-              }
-            });
-
-            // Adicionar informações adicionais
-            const movieData = {
-              ...response.data,
-              // Converter datas para formato brasileiro
-              release_date: response.data.release_date ? 
-                new Date(response.data.release_date).toLocaleDateString('pt-BR') : 
-                'Data não disponível'
-            };
-
-            setSerie(movieData);
-          } catch (err2) {
-            setError({
-              message: 'Conteúdo não encontrado',
-              code: err2.response?.status || 404,
-              details: err2.response?.data || {}
-            });
-          }
+        } else {
+          const errorMessage = err.response?.data?.status_message || 'Erro ao carregar a série';
+          setError({
+            message: errorMessage,
+            code: err.response?.status || 500,
+            details: err.response?.data || {}
+          });
         }
-      } catch (err) {
-        const errorMessage = err.response?.data?.status_message || 'Erro ao carregar o conteúdo';
-        setError({
-          message: errorMessage,
-          code: err.response?.status || 500,
-          details: err.response?.data || {}
-        });
       } finally {
         setLoading(false);
       }
     }
 
-    fetchMedia();
+    fetchSerie();
   }, [id]);
 
   if (loading) {
@@ -141,8 +119,10 @@ function Serie() {
           <p>{serie.overview || 'Sinopse não disponível'}</p>
           <div className="serie-details">
             <p><strong>Primeira exibição:</strong> {serie.first_air_date || 'Data não disponível'}</p>
-            <p><strong>Popularidade:</strong> {serie.popularity.toFixed(1)}</p>
-            <p><strong>Nota:</strong> {serie.vote_average.toFixed(1)}</p>
+            <p><strong>Temporadas:</strong> {serie.number_of_seasons || 0}</p>
+            <p><strong>Episódios:</strong> {serie.number_of_episodes || 0}</p>
+            <p><strong>Popularidade:</strong> {serie.popularity?.toFixed(1) || 'N/A'}</p>
+            <p><strong></strong><PiStarFill/>{serie.vote_average?.toFixed(1) || 'N/A'} /10</p>
           </div>
         </div>
       </div>

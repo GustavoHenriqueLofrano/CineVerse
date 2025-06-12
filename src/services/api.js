@@ -1,10 +1,23 @@
 import axios from 'axios';
+import { API_CONFIG } from '../config/api';
 
-// Base da URL: https://api.themoviedb.org/3/
-//URL DA API: /movie/now_playing?api_key=b1168e1ae671db3ae613ebbf2326bf7b&language=pt-BR
-
+// Configuração completa da API
 const api = axios.create({
-  baseURL: 'https://api.themoviedb.org/3/'
+  baseURL: API_CONFIG.baseURL,
+  params: {
+    api_key: API_CONFIG.key,
+    language: API_CONFIG.language
+  }
+});
+
+// Interceptador para adicionar parâmetros adicionais
+api.interceptors.request.use((config) => {
+  // Se já tem parâmetros, adiciona os da API_CONFIG
+  if (config.params) {
+    config.params.api_key = API_CONFIG.key;
+    config.params.language = API_CONFIG.language;
+  }
+  return config;
 });
 
 export default api;

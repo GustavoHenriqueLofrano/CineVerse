@@ -1,7 +1,6 @@
 import '../MeusFilmes/index.css'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaTrash } from 'react-icons/fa';
 import { FaTrashAlt } from "react-icons/fa";
 
 function MeusFilmes() {

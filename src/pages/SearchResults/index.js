@@ -7,7 +7,6 @@ function SearchResults() {
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
 
@@ -15,7 +14,6 @@ function SearchResults() {
     // Get search term and results directly from state
     if (location.state) {
       const { results: searchResults, type } = location.state;
-      setSearchTerm(location.state.searchTerm || '');
       setResults(searchResults || []);
       setLoading(false);
     } else {
@@ -39,7 +37,7 @@ function SearchResults() {
       <div className="error">
         <h2>Ocorreu um erro</h2>
         <p>{error.message || 'Erro ao carregar os resultados'}</p>
-        <button onClick={() => window.location.reload()}>Tentar novamente</button>
+        <button onClick={() => navigate(-1)}>Voltar para Home</button>
       </div>
     );
   }
@@ -56,7 +54,7 @@ function SearchResults() {
         <div className="movie-grid">
           {results.slice(0, 100).map((filme) => (
             <div key={filme.id} className="movie-card">
-              <Link to={filme.media_type === 'tv' ? `/tv/${filme.id}` : `/filme/${filme.id}`}>
+              <Link to={filme.media_type === 'tv' ? `/serie/${filme.id}-${filme.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : `/filme/${filme.id}`}>
                 <div className="movie-image-container">
                   <img
                     src={`https://image.tmdb.org/t/p/w500${filme.poster_path}`}
