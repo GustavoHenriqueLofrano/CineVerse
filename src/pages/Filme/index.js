@@ -17,31 +17,67 @@ function Filme() {
   useEffect(() => {
     async function loadFilme() {
       try {
-        const filmeResponse = await api.get(`/movie/${id}`, {
-          params: {
-            api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
-            language: "pt-BR",
-          }
-        });
+        // Primeiro tenta buscar em português
+        let filmeResponse;
+        try {
+          filmeResponse = await api.get(`/movie/${id}`, {
+            params: {
+              api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
+              language: "pt-BR",
+            }
+          });
+        } catch (ptError) {
+          // Se falhar em português, tenta em inglês
+          filmeResponse = await api.get(`/movie/${id}`, {
+            params: {
+              api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
+              language: "en-US",
+            }
+          });
+        }
+        
         setFilme(filmeResponse.data);
         setLoading(false);
 
-        const videosResponse = await api.get(`/movie/${id}/videos`, {
-          params: {
-            api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
-            language: "pt-BR",
+        // Tenta buscar vídeos primeiro em português
+        let videosResponse;
+        try {
+          videosResponse = await api.get(`/movie/${id}/videos`, {
+            params: {
+              api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
+              language: "pt-BR",
+            }
+          });
+          
+          // Se não encontrar vídeos em português, tenta em inglês
+          if (!videosResponse.data.results || videosResponse.data.results.length === 0) {
+            videosResponse = await api.get(`/movie/${id}/videos`, {
+              params: {
+                api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
+                language: "en-US",
+              }
+            });
           }
-        });
+        } catch (videoError) {
+          // Se der erro, tenta em inglês
+          videosResponse = await api.get(`/movie/${id}/videos`, {
+            params: {
+              api_key: "b1168e1ae671db3ae613ebbf2326bf7b",
+              language: "en-US",
+            }
+          });
+        }
 
-        const trailer = videosResponse.data.results.find(
+        const trailer = videosResponse.data.results?.find(
           video => video.type === "Trailer" && video.site === "YouTube"
-        ) || videosResponse.data.results[0];
+        ) || videosResponse.data.results?.[0];
 
         if (trailer) {
           setTrailerKey(trailer.key);
         }
         setLoadingTrailer(false);
       } catch (error) {
+        console.error("Erro ao carregar filme:", error);
         navigate("/", { replace: true });
       }
     }
@@ -98,8 +134,8 @@ function Filme() {
         <span>{filme.overview}</span>
 
         <div className="avaliacao">
-          <span className='star'><PiStarFill /></span>
-          <strong>{filme.vote_average.toFixed(1)}/10</strong>
+        <strong className="star"><PiStarFill /></strong>
+        <strong>{filme.vote_average.toFixed(1)}/10</strong>
         </div>
 
         <div className='botoes'>
