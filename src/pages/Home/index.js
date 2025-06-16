@@ -97,7 +97,7 @@ function Home() {
               }
             });
           }
-          return response.data.results.slice(0, 20);
+          return response.data.results.slice(0, 15);
         } catch (error) {
           console.error(`Erro ao buscar ${endpoint.name} em português:`, error);
           // Se der erro, tenta em inglês
@@ -109,7 +109,7 @@ function Home() {
                 page: 1,
               }
             });
-            return response.data.results.slice(0, 20);
+            return response.data.results.slice(0, 10);
           } catch (error) {
             console.error(`Erro ao buscar ${endpoint.name} em inglês:`, error);
             throw error;
