@@ -272,13 +272,13 @@ function Home() {
       <div className="series-section">
         <h2> Séries {category.name}</h2>
         <div className="movies-container">
-          {activeSeries.map((item) => (
-            <article key={`${activeCategory}-${item.id}`} className="movie-card">
-              <strong>{item.name || item.title}</strong>
-              <Link to={`/serie/${item.id}`}>
+          {activeSeries.map((i) => (
+            <article key={`${activeCategory}-${i.id}`} className="movie-card">
+              <strong>{i.name || i.title}</strong>
+              <Link to={`/serie/${i.id}`}>
                 <img
-                  src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
-                  alt={item.name || item.title}
+                  src={`https://image.tmdb.org/t/p/original/${i.poster_path}`}
+                  alt={i.name || i.title}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.style.display = 'none';
