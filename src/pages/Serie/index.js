@@ -376,23 +376,7 @@ function Serie() {
             <div className="seasons-header">
               <h2>Temporadas</h2>
               {seasons.length > 0 && (
-                <button 
-                  className="toggle-all-button"
-                  onClick={toggleAllSeasons}
-                  aria-label={allExpanded ? 'Recolher todas as temporadas' : 'Expandir todas as temporadas'}
-                >
-                  {allExpanded ? (
-                    <>
-                      <FaAngleDoubleUp />
-                      <span>Recolher todas</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaAngleDoubleDown />
-                      <span>Expandir todas</span>
-                    </>
-                  )}
-                </button>
+                <span className="seasons-count">{seasons.length} temporada{seasons.length !== 1 ? 's' : ''}</span>
               )}
             </div>
             <div className="seasons-list">
