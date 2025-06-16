@@ -263,22 +263,22 @@ function Home() {
     </div>
   );
 
-  // Função para renderizar a seção de séries ativa
+  // Função para renderizar as séries ativas
   const renderActiveSeries = () => {
-    const category = seriesCategories.find(cat => cat.id === activeCategory);
-    if (!category) return null;
+    const activeCategoryData = seriesCategories.find(cat => cat.id === activeCategory);
+    if (!activeCategoryData) return null;
 
     return (
       <div className="series-section">
-        <h2> Séries {category.name}</h2>
+        <h2>Séries {activeCategoryData.name}</h2>
         <div className="movies-container">
-          {activeSeries.map((i) => (
-            <article key={`${activeCategory}-${i.id}`} className="movie-card">
-              <strong>{i.name || i.title}</strong>
-              <Link to={`/serie/${i.id}`}>
+          {activeCategoryData.data.map((item) => (
+            <article key={`${activeCategory}-${item.id}`} className="movie-card">
+              <strong>{item.name || item.title}</strong>
+              <Link to={`/serie/${item.id}`}>
                 <img
-                  src={`https://image.tmdb.org/t/p/original/${i.poster_path}`}
-                  alt={i.name || i.title}
+                  src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
+                  alt={item.name || item.title}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.style.display = 'none';
@@ -286,7 +286,6 @@ function Home() {
                     if (fallback) fallback.style.display = 'block';
                   }}
                 />
-                <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
               </Link>
             </article>
           ))}
