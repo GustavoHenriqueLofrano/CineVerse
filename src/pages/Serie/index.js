@@ -141,12 +141,6 @@ function Serie() {
         [seasonNumber]: response.data
       }));
       
-      // Marcar a temporada como expandida
-      setExpandedSeasons(prev => ({
-        ...prev,
-        [seasonNumber]: true
-      }));
-      
     } catch (err) {
       console.error('Erro ao carregar temporada:', err);
     } finally {
