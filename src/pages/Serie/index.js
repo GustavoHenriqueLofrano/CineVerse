@@ -170,6 +170,11 @@ function Serie() {
         // Se não tem os detalhes, busca e depois expande
         try {
           await fetchSeasonDetails(serieId, seasonNumber);
+          // Atualiza o estado para expandir a temporada após carregar os detalhes
+          setExpandedSeasons(prev => ({
+            ...prev,
+            [seasonNumber]: true
+          }));
           // Rola a tela até a seção de episódios após carregar
           setTimeout(() => {
             const element = document.querySelector(`.season-${seasonNumber}`);
@@ -184,46 +189,6 @@ function Serie() {
     }
     
     setActiveSeason(seasonNumber);
-  };
-  
-  // Alternar visibilidade de todas as temporadas
-  const toggleAllSeasons = async () => {
-    if (allExpanded) {
-      // Fechar todas as temporadas
-      setExpandedSeasons({});
-      setAllExpanded(false);
-    } else {
-      // Abrir todas as temporadas
-      const newExpandedSeasons = {};
-      const serieId = id.split('-')[0];
-      
-      // Carrega os detalhes de todas as temporadas que ainda não foram carregadas
-      const seasonsToLoad = [];
-      
-      seasons.forEach(season => {
-        if (!seasonDetails[season.season_number]) {
-          seasonsToLoad.push(season.season_number);
-        }
-        newExpandedSeasons[season.season_number] = true;
-      });
-      
-      // Atualiza o estado para abrir todas as temporadas
-      setExpandedSeasons(newExpandedSeasons);
-      setAllExpanded(true);
-      
-      // Carrega os detalhes das temporadas que ainda não foram carregadas
-      if (seasonsToLoad.length > 0) {
-        try {
-          await Promise.all(
-            seasonsToLoad.map(seasonNumber => 
-              fetchSeasonDetails(serieId, seasonNumber)
-            )
-          );
-        } catch (error) {
-          console.error('Erro ao carregar temporadas:', error);
-        }
-      }
-    }
   };
 
   if (loading) {

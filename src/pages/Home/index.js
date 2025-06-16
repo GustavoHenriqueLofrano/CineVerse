@@ -61,7 +61,7 @@ function Home() {
           }
         });
       }
-      setFilmes(response.data.results.slice(0, 20));
+      setFilmes(response.data.results.slice(0, 30));
     } catch (error) {
       console.error('Erro ao carregar filmes em cartaz:', error);
       setError('Erro ao carregar filmes em cartaz. Tente novamente mais tarde.');
@@ -97,7 +97,7 @@ function Home() {
               }
             });
           }
-          return response.data.results.slice(0, 10);
+          return response.data.results.slice(0, 20);
         } catch (error) {
           console.error(`Erro ao buscar ${endpoint.name} em português:`, error);
           // Se der erro, tenta em inglês
@@ -109,7 +109,7 @@ function Home() {
                 page: 1,
               }
             });
-            return response.data.results.slice(0, 10);
+            return response.data.results.slice(0, 20);
           } catch (error) {
             console.error(`Erro ao buscar ${endpoint.name} em inglês:`, error);
             throw error;
@@ -267,28 +267,26 @@ function Home() {
   const renderActiveSeries = () => {
     const category = seriesCategories.find(cat => cat.id === activeCategory);
     if (!category) return null;
-    
+
     return (
       <div className="series-section">
-        <h2>{category.name}</h2>
+        <h2> Séries {category.name}</h2>
         <div className="movies-container">
           {activeSeries.map((item) => (
             <article key={`${activeCategory}-${item.id}`} className="movie-card">
               <strong>{item.name || item.title}</strong>
               <Link to={`/serie/${item.id}`}>
-                <div className="movie-image-container">
-                  <img
-                    src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
-                    alt={item.name || item.title}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.style.display = 'none';
-                      const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
-                      if (fallback) fallback.style.display = 'block';
-                    }}
-                  />
-                  <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
-                </div>
+                <img
+                  src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
+                  alt={item.name || item.title}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                    const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
+                    if (fallback) fallback.style.display = 'block';
+                  }}
+                />
+                <HiOutlineBan className="fallback-icon" style={{ display: 'none' }} />
               </Link>
             </article>
           ))}
@@ -340,7 +338,7 @@ function Home() {
           <button type="submit" className="search-button">Buscar</button>
         </form>
       </div>
-      
+
       {renderCategoryButtons()}
       {renderActiveSeries()}
     </div>

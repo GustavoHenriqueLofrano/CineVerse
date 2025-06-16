@@ -156,6 +156,35 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
+}
+
+.seasons-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-all-seasons {
+  background: var(--color2);
+  color: var(--color5);
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.toggle-all-seasons:hover {
+  background: var(--color1);
+  transform: translateY(-1px);
+}
+
+.toggle-all-seasons:active {
+  transform: translateY(0);
 }
 
 .seasons-section h2 {

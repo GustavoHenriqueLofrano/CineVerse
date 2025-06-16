@@ -186,6 +186,7 @@
 }
 
 .movies-container article {
+  background: none;
   display: flex;
   min-width: 250px;
   max-width: 300px;
@@ -195,7 +196,6 @@
   gap: 6px;
   padding-bottom: 10px;
   flex-direction: column;
-  background-color: var(--colo4);
 }
 
 .movies-container strong {
@@ -209,10 +209,11 @@
 }
 
 .movies-container img {
+  background: none;
   height: 0%;
   object-fit: cover;
   display: flex;
-  border-radius: 10px;
+  border-radius: 20px;
   transition: all 0.3s ease;
   max-width: 100% ;
   min-width: 100% ;
@@ -228,11 +229,6 @@ article img:hover {
   filter: brightness(1.0);
   opacity: 0.90;
   filter: brightness(1.0)
-}
-article a {
-  overflow: hidden;
-  background: none;
-  background-color: none;
 }
 
 .movies-container::-webkit-scrollbar {
