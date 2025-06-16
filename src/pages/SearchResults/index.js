@@ -48,7 +48,7 @@ function SearchResults() {
         <div className="no-results">
           <p>Nenhum resultado encontrado com esse termo de busca.</p>
           <p>Tente uma busca diferente ou verifique a ortografia.</p>
-          <button onClick={() => navigate(-1)}>Voltar para Home</button>
+          <button onClick={() => navigate(-1)}>Voltar para página inicial</button>
         </div>
       ) : (
         <div className="movie-grid">

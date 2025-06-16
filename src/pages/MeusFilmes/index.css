@@ -15,36 +15,66 @@
   /* Remove qualquer estilo de sombra ou efeito 3D 
   box-shadow: none;
 */
+.my-list {
+  padding: 2rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
 
-.my-movies h1{
-    display: flex;
-    padding: auto;
-    justify-content: center;
+.my-list h1 {
     color: var(--color1);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-decoration-style: solid;
-    margin-top: 25px;
-    border-bottom: 20px;
-    margin-bottom: 50px;
-    
+    margin-bottom: 30px;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  padding-bottom: 1rem;
 }
-.my-movies ul {
-    width: 40%;
-    height: 100%;
-    max-height: auto;
-    max-width: 100%;
-    margin: auto;
-}
-.my-movies ul li{
-    display: flex;
-    margin: 20px auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; 
 
+.my-list h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: var(--primary-color);
+  border-radius: 2px;
 }
-.my-movies a {
+
+/* Grid de itens */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+/* Card de item */
+.item-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+    
+
+.my-list a {
     justify-content: left;
     background-color: var(--color5);
     text-decoration: none;
@@ -52,6 +82,13 @@
     margin-right: 25px;
     border-radius: 5px;
     align-items: center;
+  font-size: 16px;
+  text-align: center;
+  padding-right: 3px;
+  padding-left: 3px;
+  padding-bottom: 1px;
+  padding-top: 1px;
+  border: none;
     font-size: 16px;
     text-align: center;
     padding-right: 3px;

@@ -18,13 +18,13 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   const seriesCategories = [
     { id: 'airing', name: 'Em Exibição', data: airingToday },
     { id: 'popular', name: 'Populares', data: popularSeries },
     { id: 'top-rated', name: 'Mais Bem Avaliadas', data: topRatedSeries }
   ];
-  
+
   const activeSeries = seriesCategories.find(cat => cat.id === activeCategory)?.data || [];
 
 
@@ -40,7 +40,7 @@ function Home() {
             page: 1,
           }
         });
-        
+
         // Se não encontrar resultados em português, tenta em inglês
         if (!response.data.results?.length) {
           response = await api.get("movie/now_playing", {
@@ -80,35 +80,35 @@ function Home() {
         try {
           // Tenta buscar em português primeiro
           let response = await api.get(endpoint.url, {
-          params: {
-            api_key: API_KEY,
-            language: "pt-BR",
-            page: 1,
-          }
-        });
-        
-        // Se não encontrar resultados em português, tenta em inglês
-        if (!response.data.results?.length) {
-            response = await api.get(endpoint.url, {
             params: {
               api_key: API_KEY,
-              language: "en-US",
+              language: "pt-BR",
               page: 1,
             }
           });
-        }
+
+          // Se não encontrar resultados em português, tenta em inglês
+          if (!response.data.results?.length) {
+            response = await api.get(endpoint.url, {
+              params: {
+                api_key: API_KEY,
+                language: "en-US",
+                page: 1,
+              }
+            });
+          }
           return response.data.results.slice(0, 10);
-      } catch (error) {
+        } catch (error) {
           console.error(`Erro ao buscar ${endpoint.name} em português:`, error);
-        // Se der erro, tenta em inglês
+          // Se der erro, tenta em inglês
           try {
             const response = await api.get(endpoint.url, {
-          params: {
-            api_key: API_KEY,
-            language: "en-US",
-            page: 1,
-          }
-        });
+              params: {
+                api_key: API_KEY,
+                language: "en-US",
+                page: 1,
+              }
+            });
             return response.data.results.slice(0, 10);
           } catch (error) {
             console.error(`Erro ao buscar ${endpoint.name} em inglês:`, error);
@@ -119,7 +119,7 @@ function Home() {
 
       // Busca todas as categorias em paralelo
       const results = await Promise.all(
-        endpoints.map(endpoint => 
+        endpoints.map(endpoint =>
           fetchWithFallback(endpoint)
             .then(data => ({ setter: endpoint.setter, data }))
             .catch(error => {
@@ -158,32 +158,19 @@ function Home() {
   }, [loadFilmes, loadSeries]);
 
   const searchWithFallback = useCallback(async (type) => {
-      try {
-        // Primeiro tenta em português
-        const ptResponse = await api.get(`search/${type}`, {
-          params: {
-            api_key: API_KEY,
-            language: "pt-BR",
-            query: searchTerm,
-            page: 1,
-          }
-        });
-
-        // Se não encontrar resultados em português, tenta em inglês
-        if (!ptResponse.data.results?.length) {
-          const enResponse = await api.get(`search/${type}`, {
-            params: {
-              api_key: API_KEY,
-              language: "en-US",
-              query: searchTerm,
-              page: 1,
-            }
-          });
-          return enResponse.data.results;
+    try {
+      // Primeiro tenta em português
+      const ptResponse = await api.get(`search/${type}`, {
+        params: {
+          api_key: API_KEY,
+          language: "pt-BR",
+          query: searchTerm,
+          page: 1,
         }
-        return ptResponse.data.results;
-      } catch (error) {
-        // Se der erro, tenta em inglês
+      });
+
+      // Se não encontrar resultados em português, tenta em inglês
+      if (!ptResponse.data.results?.length) {
         const enResponse = await api.get(`search/${type}`, {
           params: {
             api_key: API_KEY,
@@ -194,9 +181,22 @@ function Home() {
         });
         return enResponse.data.results;
       }
-    }, [searchTerm]);
+      return ptResponse.data.results;
+    } catch (error) {
+      // Se der erro, tenta em inglês
+      const enResponse = await api.get(`search/${type}`, {
+        params: {
+          api_key: API_KEY,
+          language: "en-US",
+          query: searchTerm,
+          page: 1,
+        }
+      });
+      return enResponse.data.results;
+    }
+  }, [searchTerm]);
 
-    const handleSearch = useCallback(async (e) => {
+  const handleSearch = useCallback(async (e) => {
     e.preventDefault();
     if (!searchTerm.trim()) return;
 
@@ -267,19 +267,19 @@ function Home() {
   const renderActiveSeries = () => {
     const category = seriesCategories.find(cat => cat.id === activeCategory);
     if (!category) return null;
-
+    
     return (
       <div className="series-section">
         <h2>{category.name}</h2>
         <div className="movies-container">
-          {category.data.map((serie) => (
-            <article key={`${category.id}-${serie.id}`} className="serie-card">
-              <strong>{serie.name || serie.title}</strong>
-              <Link to={`/serie/${serie.id}`}>
+          {activeSeries.map((item) => (
+            <article key={`${activeCategory}-${item.id}`} className="movie-card">
+              <strong>{item.name || item.title}</strong>
+              <Link to={`/serie/${item.id}`}>
                 <div className="movie-image-container">
-                  <img 
-                    src={`https://image.tmdb.org/t/p/original/${serie.poster_path}`} 
-                    alt={serie.name || serie.title}
+                  <img
+                    src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
+                    alt={item.name || item.title}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.style.display = 'none';
@@ -307,8 +307,8 @@ function Home() {
               <strong>{filme.title}</strong>
               <Link to={`/filme/${filme.id}`}>
                 <div className="movie-image-container">
-                  <img 
-                    src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`} 
+                  <img
+                    src={`https://image.tmdb.org/t/p/original/${filme.poster_path}`}
                     alt={filme.title}
                     onError={(e) => {
                       e.target.onerror = null;
@@ -322,14 +322,29 @@ function Home() {
               </Link>
             </article>
           ))}
-          
         </div>
       </div>
-
+      <div className="search-container">
+        <form onSubmit={handleSearch} className="search-form">
+          <div className="search-input-container">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              placeholder="Buscar filmes e séries..."
+              aria-label="Buscar filmes e séries"
+            />
+          </div>
+          <button type="submit" className="search-button">Buscar</button>
+        </form>
+      </div>
+      
       {renderCategoryButtons()}
       {renderActiveSeries()}
     </div>
   );
 }
 
-export default Home;  
+export default Home;

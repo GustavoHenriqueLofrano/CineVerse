@@ -1,56 +1,72 @@
 import '../MeusFilmes/index.css'
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FaTrashAlt } from "react-icons/fa";
+import { useState, useEffect } from 'react';
+import { FaTrashAlt, FaFilm, FaTv } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import './index.css';
 
-function MeusFilmes() {
-    const [filmes, setFilmes] = useState([]);
+export default function MeusFilmes() {
+    const [itens, setItens] = useState([]);
 
     useEffect(() => {
-        const myList = localStorage.getItem("@CineVerse");
+        const minhaLista = localStorage.getItem("@CineVerse");
+        setItens(JSON.parse(minhaLista) || []);
+    }, []);
 
-        setFilmes(JSON.parse(myList) || [])
-    }, [])
-
-    function ExcluirFilme(id) {
-        let FilterMovies = filmes.filter((item) => {
-            return (item.id !== id)
-        })
-
-        setFilmes(FilterMovies);
-
-        localStorage.setItem("@CineVerse", JSON.stringify(FilterMovies));
-
+    function excluirItem(id, mediaType) {
+        const itensAtualizados = itens.filter(item => 
+            !(item.id === id && item.media_type === mediaType)
+        );
+        setItens(itensAtualizados);
+        localStorage.setItem("@CineVerse", JSON.stringify(itensAtualizados));
     }
-    if (filmes.length === 0) {
+
+    if (itens.length === 0) {
         return (
-            <span className='empty-list'>Sua Lista De Filmes Está Vazia... </span>
-        )
+            <div className='empty-list'>
+                <h1>Minha Lista</h1>
+                <p>Sua lista está vazia...</p>
+            </div>
+        );
     }
 
     return (
-        <div className='my-movies'>
-            <h1>Meus filmes</h1>
-            <ul>
-                {filmes.map((item) => {
-
+        <div className='my-list'>
+            <h1>Minha Lista</h1>
+            <div className='items-grid'>
+                {itens.map((item) => {
+                    const isSerie = item.media_type === 'tv';
+                    const detalhesUrl = isSerie ? `/serie/${item.id}` : `/filme/${item.id}`;
+                    
                     return (
-                        <li key={item.id}>
-                            <span>{item.title}</span>
-                            <div>
-                                <Link to={`/filme/${item.id}`}>detalhes</Link>
-
-                                <button onClick={() => ExcluirFilme(item.id)} ><FaTrashAlt/> </button> 
-
+                        <div key={`${item.id}-${item.media_type}`} className='item-card'>
+                            <div className='item-poster'>
+                                {item.poster_path ? (
+                                    <img 
+                                        src={`https://image.tmdb.org/t/p/w200${item.poster_path}`} 
+                                        alt={item.title} 
+                                    />
+                                ) : (
+                                    <div className='no-poster'>
+                                        {isSerie ? <FaTv size={40} /> : <FaFilm size={40} />}
+                                    </div>
+                                )}
+                                <div className='item-actions'>
+                                    <Link to={detalhesUrl} className='details-btn'>
+                                        Detalhes
+                                    </Link>
+                                    <button 
+                                        onClick={() => excluirItem(item.id, item.media_type)}
+                                        className='delete-btn'
+                                        title='Remover da lista'
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
+                                </div>
                             </div>
-                        </li>
-                    )
-
-
+                        </div>
+                    );
                 })}
-            </ul>
+            </div>
         </div>
-    )
+    );
 }
-
-export default MeusFilmes;
