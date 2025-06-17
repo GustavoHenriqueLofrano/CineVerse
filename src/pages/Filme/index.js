@@ -243,7 +243,6 @@ function Filme() {
             <p><strong>Gêneros:</strong> {filme.genres?.map(g => g.name).join(', ') || 'Não disponível'}</p>
             <p><strong>Diretor:</strong> {filme.credits?.crew?.find(person => person.job === 'Director')?.name || 'Não disponível'}</p>
             <p><strong>Elenco principal:</strong> {filme.credits?.cast?.slice(0, 3).map(actor => actor.name).join(', ') || 'Não disponível'}</p>
-            <p><strong>Popularidade:</strong> {filme.popularity?.toFixed(1) || 'N/A'}</p>
             <p><strong>Status:</strong> {filme.status === 'Released' ? 'Lançado' : filme.status || 'Não disponível'}</p>
             <p><strong>Idioma original:</strong> {filme.original_language?.toUpperCase() || 'N/A'}</p>
             <p><strong>Orçamento:</strong> {filme.budget ? `$${filme.budget.toLocaleString()}` : 'Não disponível'}</p>

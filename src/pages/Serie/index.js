@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import './serie.css';
 import { PiStarFill } from "react-icons/pi";
+import { FaPlay } from 'react-icons/fa';
 
 function Serie() {
   const { id } = useParams();
@@ -11,6 +12,15 @@ function Serie() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedSeasons, setExpandedSeasons] = useState({});
+  const [episodes, setEpisodes] = useState({});
+  const [loadingEpisodes, setLoadingEpisodes] = useState({});
+  const [errorEpisodes, setErrorEpisodes] = useState({});
+  
+  // Efeito para depuração
+  useEffect(() => {
+    console.log('Episódios carregados:', episodes);
+    console.log('Temporadas expandidas:', expandedSeasons);
+  }, [episodes, expandedSeasons]);
   
   useEffect(() => {
     if (!id) {
@@ -37,17 +47,37 @@ function Serie() {
 
         setSerie(serieData);
         
-        const seasonsArray = Array.from(
-          { length: response.data.number_of_seasons },
-          (_, i) => ({
-            season_number: i + 1,
-            name: `Temporada ${i + 1}`,
-            episode_count: response.data.seasons?.[i]?.episode_count || 0,
-            air_date: response.data.seasons?.[i]?.air_date || '',
-            poster_path: response.data.seasons?.[i]?.poster_path
-          })
-        );
-        setSeasons(seasonsArray);
+        // Primeiro, verifica se temos informações detalhadas das temporadas
+        let seasonsData = [];
+        
+        if (response.data.seasons && response.data.seasons.length > 0) {
+          // Se temos os dados das temporadas, usamos eles
+          seasonsData = response.data.seasons
+            .filter(season => season.season_number > 0) // Ignora temporadas especiais (season_number: 0)
+            .sort((a, b) => a.season_number - b.season_number) // Ordena as temporadas
+            .map(season => ({
+              season_number: season.season_number,
+              name: season.name || `Temporada ${season.season_number}`,
+              episode_count: season.episode_count || 0,
+              air_date: season.air_date || '',
+              poster_path: season.poster_path,
+              overview: season.overview
+            }));
+        } else {
+          // Se não temos os dados detalhados, criamos um array básico
+          seasonsData = Array.from(
+            { length: response.data.number_of_seasons },
+            (_, i) => ({
+              season_number: i + 1,
+              name: `Temporada ${i + 1}`,
+              episode_count: 0, // Inicializa como 0, será atualizado quando a temporada for expandida
+              air_date: '',
+              poster_path: null
+            })
+          );
+        }
+        
+        setSeasons(seasonsData);
         
       } catch (err) {
         console.error('Erro ao carregar a série:', err);
@@ -63,17 +93,134 @@ function Serie() {
     fetchSerie();
   }, [id]);
 
-  const toggleSeason = (seasonNumber) => {
-    setExpandedSeasons(prev => ({
-      ...prev,
-      [seasonNumber]: !prev[seasonNumber]
-    }));
+  const fetchEpisodes = useCallback(async (serieId, seasonNumber) => {
+    console.log(`Buscando episódios para a temporada ${seasonNumber} da série ${serieId}`);
+    if (!serieId || !seasonNumber) {
+      console.error('ID da série ou número da temporada não fornecidos');
+      throw new Error('ID da série ou número da temporada não fornecidos');
+    }
+    
+    const cacheKey = `${serieId}-${seasonNumber}`;
+    
+    try {
+      // Se já está carregando, não faz nada
+      if (loadingEpisodes[cacheKey]) return;
+      
+      // Limpa qualquer erro anterior
+      setErrorEpisodes(prev => ({ ...prev, [cacheKey]: null }));
+      setLoadingEpisodes(prev => ({ ...prev, [cacheKey]: true }));
+      
+      const response = await api.get(`/tv/${serieId}/season/${seasonNumber}`, {
+        params: {
+          language: 'pt-BR',
+          append_to_response: 'videos,images,credits'
+        }
+      });
+      
+      const episodesList = response.data.episodes || [];
+      
+      // Atualiza o contador de episódios da temporada
+      setSeasons(prevSeasons => 
+        prevSeasons.map(season => 
+          season.season_number === seasonNumber 
+            ? { 
+                ...season, 
+                episode_count: episodesList.length,
+                air_date: season.air_date || response.data.air_date,
+                overview: season.overview || response.data.overview,
+                poster_path: season.poster_path || response.data.poster_path
+              }
+            : season
+        )
+      );
+      
+      // Formata os dados dos episódios
+      const formattedEpisodes = episodesList.map(episode => ({
+        ...episode,
+        air_date: episode.air_date ? new Date(episode.air_date).toLocaleDateString('pt-BR') : 'Data não disponível',
+        still_path: episode.still_path 
+          ? `https://image.tmdb.org/t/p/w300${episode.still_path}`
+          : 'https://via.placeholder.com/300x169?text=Sem+imagem',
+        guest_stars: episode.guest_stars || [],
+        crew: episode.crew || []
+      }));
+      
+      setEpisodes(prev => ({
+        ...prev,
+        [cacheKey]: formattedEpisodes
+      }));
+      
+      return formattedEpisodes;
+      
+    } catch (err) {
+      console.error(`Erro ao carregar episódios da temporada ${seasonNumber}:`, err);
+      setErrorEpisodes(prev => ({
+        ...prev, 
+        [cacheKey]: 'Não foi possível carregar os episódios. Tente novamente.'
+      }));
+      throw err;
+    } finally {
+      setLoadingEpisodes(prev => ({ ...prev, [cacheKey]: false }));
+    }
+  }, [episodes]);
+
+  const toggleSeason = async (seasonNumber) => {
+    console.log('Toggle temporada:', seasonNumber);
+    const serieId = id?.split('-')[0];
+    console.log('ID da série:', serieId);
+    
+    if (!serieId) {
+      console.error('ID da série não encontrado');
+      return;
+    }
+    
+    const cacheKey = `${serieId}-${seasonNumber}`;
+    
+    // Se já está expandida, fecha
+    if (expandedSeasons[seasonNumber]) {
+      setExpandedSeasons({});
+      return;
+    }
+    
+    // Se não está expandida, fecha todas as outras e abre esta
+    setExpandedSeasons({ [seasonNumber]: true });
+    
+    // Se já tem os episódios em cache, não precisa buscar de novo
+    if (episodes[cacheKey] && episodes[cacheKey].length > 0) {
+      return;
+    }
+    
+    try {
+      await fetchEpisodes(serieId, seasonNumber);
+    } catch (error) {
+      console.error('Erro ao carregar episódios:', error);
+      // Em caso de erro, mantém a temporada expandida mas mostra mensagem de erro
+      setErrorEpisodes(prev => ({
+        ...prev,
+        [cacheKey]: 'Não foi possível carregar os episódios. Tente novamente.'
+      }));
+    }
   };
 
   if (loading) {
     return (
-      <div className="loading">
-        <h2>Carregando...</h2>
+      <div className="loading" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '50vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div className="loading-spinner" style={{
+          width: '50px',
+          height: '50px',
+          border: '5px solid #f3f3f3',
+          borderTop: '5px solid #3498db',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <h2>Carregando série...</h2>
       </div>
     );
   }
@@ -99,19 +246,20 @@ function Serie() {
 
 
   return (
-    <div className="serie-container">
+    <div className="container-serie">
       <div className="serie-header">
-        <img
-          src={serie.poster_path 
-            ? `https://image.tmdb.org/t/p/w500${serie.poster_path}` 
-            : 'https://via.placeholder.com/300x450?text=Sem+imagem'}
-          alt={serie.name || 'Capa da série'}
-          className="serie-poster"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = 'https://via.placeholder.com/300x450?text=Sem+imagem';
-          }}
-        />
+        <div className="serie-poster">
+          <img
+            src={serie.poster_path 
+              ? `https://image.tmdb.org/t/p/w500${serie.poster_path}` 
+              : 'https://via.placeholder.com/300x450?text=Sem+imagem'}
+            alt={serie.name || 'Capa da série'}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://via.placeholder.com/300x450?text=Sem+imagem';
+            }}
+          />
+        </div>
         <div className="serie-info">
           <h1>{serie.name}</h1>
           <div className="serie-meta">
@@ -130,19 +278,90 @@ function Serie() {
           {seasons.map((season) => (
             <div key={season.season_number} className="season-item">
               <div 
-                className="season-header"
+                className={`season-header ${expandedSeasons[season.season_number] ? 'active' : ''}`}
                 onClick={() => toggleSeason(season.season_number)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSeason(season.season_number)}
               >
-                <h3>{season.name}</h3>
-                <span>{season.episode_count} episódio{season.episode_count !== 1 ? 's' : ''}</span>
+                <div className="season-title">
+                  <h3>{season.name}</h3>
+                  <span>
+                    {season.episode_count > 0 
+                      ? `${season.episode_count} episódio${season.episode_count !== 1 ? 's' : ''}`
+                      : 'Nenhum episódio'}
+                  </span>
+                </div>
                 <span className="toggle-icon">
                   {expandedSeasons[season.season_number] ? '−' : '+'}
                 </span>
               </div>
               
               {expandedSeasons[season.season_number] && (
-                <div className="season-content">
-                  <p>Detalhes da temporada serão carregados aqui.</p>
+                <div className="season-content expanded">
+                  {errorEpisodes[`${id?.split('-')[0]}-${season.season_number}`] ? (
+                    <div className="error-message">
+                      <p>{errorEpisodes[`${id?.split('-')[0]}-${season.season_number}`]}</p>
+                      <button 
+                        onClick={() => fetchEpisodes(id?.split('-')[0], season.season_number)}
+                        className="retry-button"
+                      >
+                        Tentar novamente
+                      </button>
+                    </div>
+                  ) : loadingEpisodes[`${id?.split('-')[0]}-${season.season_number}`] ? (
+                    <div className="loading-episodes">
+                      <div className="loading-spinner"></div>
+                      <p>Carregando episódios...</p>
+                    </div>
+                  ) : (
+                    <div className="episodes-list">
+                      {episodes[`${id?.split('-')[0]}-${season.season_number}`]?.length > 0 ? (
+                        episodes[`${id?.split('-')[0]}-${season.season_number}`].map(episode => {
+                          console.log('Renderizando episódio:', episode.episode_number, episode.name);
+                          return (
+                            <div key={`${episode.id}-${episode.episode_number}`} className="episode-card">
+                              <div className="episode-poster">
+                                <img 
+                                  src={episode.still_path}
+                                  alt={`${episode.name || 'Episódio'} ${episode.episode_number}`}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://via.placeholder.com/300x169?text=Sem+imagem';
+                                  }}
+                                />
+
+                              </div>
+                              <div className="episode-details">
+                                <div>
+                                  <h4>
+                                    <span className="episode-number">Episódio {episode.episode_number}:</span>
+                                    <span>{episode.name || 'Sem título'}</span>
+                                  </h4>
+                                  <p className="air-date">
+                                    {episode.air_date || 'Data não disponível'}
+                                  </p>
+                                  <p className="episode-overview">
+                                    {episode.overview || 'Sinopse não disponível.'}
+                                  </p>
+                                </div>
+                                {episode.vote_average > 0 && (
+                                  <div className="episode-rating">
+                                    <PiStarFill className="star-icon" />
+                                    {episode.vote_average.toFixed(1)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="no-episodes">
+                          <p>Nenhum episódio disponível para esta temporada.</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

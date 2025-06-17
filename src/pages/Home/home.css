@@ -174,6 +174,7 @@
   overflow-x: scroll;
   height: 100%;
   width: 99,1%;
+  border: none;
 }
   
 
@@ -204,12 +205,11 @@
   height: 0px;
   display: flex;
   justify-content: center;
-  line-height: 1.2;
-  
+  padding: 2px;
+  white-space: nowrap;
 }
 
 .movies-container img {
-  background: none;
   height: 0%;
   object-fit: cover;
   display: flex;
