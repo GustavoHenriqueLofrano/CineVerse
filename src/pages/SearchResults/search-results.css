@@ -1,8 +1,9 @@
 
 .container-search-results {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
+  text-decoration: none;
 }
 
 .movie-grid {
@@ -13,10 +14,8 @@
 }
 
 .movie-card {
-  background: white;
+  background: var(--color3);
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
 
@@ -49,6 +48,16 @@
   object-fit: cover;
 }
 
+.movie-card h3{
+  color: var(--color1);
+  border: none;
+  background: none;
+  font-weight: bold;
+  margin: 10px;
+  font-size: 1.2rem;
+
+}
+
 .movie-card .fallback-icon {
   position: absolute;
   top: 50%;
@@ -60,13 +69,11 @@
   opacity: 0.7;
 }
 
-.movie-card h3 {
-  margin: 10px;
-  font-size: 1.2rem;
-}
-
 .movie-card p {
-  margin: 0 10px 10px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 5px;  
+  margin-top: 15px;
   color: var(--color1);
 }
 

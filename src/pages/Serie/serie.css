@@ -26,16 +26,63 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
   color: var(--color1);
   background: var(--color4);
   min-height: 100vh;
 }
 
+/* Estilo para o cabeçalho da série */
 .serie-header {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 30px;
   margin-bottom: 40px;
+  position: relative;
+}
+
+/* Container para o título e o botão de salvar */
+.serie-title-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Estilo para o botão de salvar */
+.save-button {
+  background: none;
+  border: none;
+  color: var(--color1);
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: -50px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.save-button:hover {
+  transform: translateY(-50%) scale(1.1);
+  color: var(--color2);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.save-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.save-button:focus {
+  outline: 2px solid var(--color3);
+  outline-offset: 2px;
 }
 
 .serie-poster {
@@ -66,7 +113,7 @@
   display: flex;
   gap: 15px;
   margin-bottom: 20px;
-  color: #666;
+  color: var(--color1);
   font-size: 0.95rem;
 }
 
@@ -74,11 +121,16 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  color: var(--color1);
+}
+.serie-meta .serie-rating{
+  color: var(--rating-color);
+  font-weight: bold;
 }
 
 .serie-overview {
   line-height: 1.6;
-  color: #444;
+  color: var(--color1);
   margin-bottom: 20px;
 }
 
@@ -204,6 +256,10 @@
   color: #555;
   font-size: 0.95rem;
   line-height: 1.5;
+}
+
+.star-icon{
+  color: var(--rating-color);
 }
 
 .episode-rating {
