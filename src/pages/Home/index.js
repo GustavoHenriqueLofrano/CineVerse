@@ -131,6 +131,11 @@ function Home() {
 
       // Atualiza os estados com os resultados
       results.forEach(({ setter, data }) => {
+        console.log('Dados recebidos:', data);
+        if (data && data.length > 0) {
+          console.log('Primeiro item:', data[0]);
+          console.log('Caminho do poster:', data[0].poster_path);
+        }
         setter(data);
       });
 
@@ -277,15 +282,19 @@ function Home() {
               <strong>{item.name || item.title}</strong>
               <Link to={`/serie/${item.id}-${(item.name || item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="movie-link">
                 {item.poster_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                    alt={item.name || item.title}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/300x450?text=Imagem+não+disponível';
-                    }}
-                    className="movie-poster"
-                  />
+                  <div className="poster-container">
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                      alt={item.name || item.title}
+                      onError={(e) => {
+                        console.error('Erro ao carregar a imagem:', e.target.src);
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/300x450?text=Imagem+não+disponível';
+                      }}
+                      className="movie-poster"
+                      onLoad={() => console.log('Imagem carregada:', item.poster_path)}
+                    />
+                  </div>
                 ) : (
                   <div className="no-poster">
                     <HiOutlineBan className="no-poster-icon" />
@@ -299,6 +308,9 @@ function Home() {
       </div>
     );
   };
+
+  console.log('Renderizando Home com activeSeries:', activeSeries);
+  console.log('Primeira série:', activeSeries[0]);
 
   return (
     <div className="home-container">
