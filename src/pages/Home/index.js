@@ -275,17 +275,23 @@ function Home() {
           {activeCategoryData.data.map((item) => (
             <article key={`${activeCategory}-${item.id}`} className="movie-card">
               <strong>{item.name || item.title}</strong>
-              <Link to={`/serie/${item.id}`}>
-                <img
-                  src={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
-                  alt={item.name || item.title}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.style.display = 'none';
-                    const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
-                    if (fallback) fallback.style.display = 'block';
-                  }}
-                />
+              <Link to={`/serie/${item.id}-${(item.name || item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="movie-link">
+                {item.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                    alt={item.name || item.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/300x450?text=Imagem+não+disponível';
+                    }}
+                    className="movie-poster"
+                  />
+                ) : (
+                  <div className="no-poster">
+                    <HiOutlineBan className="no-poster-icon" />
+                    <span>Sem imagem</span>
+                  </div>
+                )}
               </Link>
             </article>
           ))}
