@@ -1,40 +1,4 @@
 
-.search-form {
-  display: flex;
-  gap: 10px;
-  margin: 20px;
-}
-.search-form button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-}
-
-.search-input-container {
-  display: flex;
-  align-items: center;
-  background-color: var(--color5);
-  border-radius: 20px;
-  padding: 8px 12px;
-  flex: 1;
-}
-
-.search-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center; 
-  font-size: 15px;
-  color: var(--color1);
-  margin-right: 5px;
-  background-color: none;
-  border: none;
-
-}
-
 .series-buttons {
   display: flex;
   justify-content: center;
@@ -50,8 +14,11 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  width: 100%;
+  height: auto;
   background: none;
+  border: none; 
+  overflow: hidden;
 }
 
 .movie-card:hover {
@@ -65,14 +32,20 @@
   text-decoration: none;
   color: inherit;
   background: none;
+  border: none;
+  overflow: hidden;
 }
 
 .poster-container {
   position: relative;
   width: 100%;
-  padding-bottom: 150%; /* Proporção 2:3 */
+  height: auto;
+  padding-bottom: 100%;
+  border-radius: 4px;
   overflow: hidden;
-  border-radius: 4px 4px 0 0;
+  border: none;
+  background: none;
+
 }
 
 .movie-poster {
@@ -83,10 +56,11 @@
   object-fit: cover;
   transition: transform 0.3s ease;
   background: none;
+  border: none;
 }
 
 .movie-card:hover .movie-poster {
-  transform: scale(1.03);
+  transform: scale(1.00);
 }
 
 .no-poster {
@@ -100,6 +74,7 @@
   background-color: var(--color4);
   color: #999;
   font-size: 14px;
+  overflow: hidden;
 }
 
 .no-poster-icon {
@@ -130,83 +105,25 @@
 }
 .movie-image-container{
   background: none;
+  border: none;
+  background-color: none;
 }
 
 .series-section {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .series-section h2 {
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color1);
-  font-size: 20px;
+  font-size: 22px;
   text-align: center;
   margin-bottom: 10px;
 }
 
-/* Barra de pesquisa fixa */
-.search-container {
-  position: flex;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: none;
-  padding: 15px 20px;
-}
-
-.search-form {
-  display: flex;
-  max-width: 1000px;
-  margin: 0 auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.search-input-container {
-  display: flex;
-  align-items: center;
-  background: var(--color3);
-  border-radius: 25px;
-  padding: 8px 15px;
-  flex: 1;
-  transition: all 0.3s ease;
-}
-
-.search-input-container:focus-within {
-  box-shadow: 0 0 0 2px var(--color2);
-}
-
-.search-icon {
-  color: var(--color1);
-  font-size: 16px;
-  margin-right: 8px;
-}
-
-.search-input {
-  border: none;
-  background: none;
-  outline: none;
-  color: var(--color1);
-  font-size: 16px;
-  flex: 1;
-  padding: 5px 0;
-}
-
-.search-button {
-  background: var(--color1);
-  color: var(--color1);
-  border-radius: 25px;
-  padding: 10px 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Ajuste para o conteúdo não ficar atrás da barra de pesquisa */
-.home-container {
-  padding-bottom: 80px;
-}
 
 .container-home h2 {
   display: flex;
@@ -222,6 +139,7 @@
 
 }
 .movies-section{
+  border: none;
   margin: 0px;
   padding: 0px;
   background: linear-gradient(80deg, var(--color2) , var(--color5), var(--color2));
@@ -234,18 +152,33 @@
   align-items: center;
   justify-content: center;
   color: var(--color1);
+  text-align: center;
+  font-weight: bold;
+
+
 }
-.movies-section h2 {
-  color: var(--color1);
+.movie-image-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0%;
+  height: 0%;
+  object-fit: cover;
+  border-radius: 20px;
+
 }
 
+
+
 .movies-container {
+  border: none;
   display: flex;
   margin: 0;
   padding: 0;
   overflow-x: scroll;
   height: 100%;
   width: 99,1%;
+  background: none;
 }
   
 .loading {
@@ -260,10 +193,12 @@
   background: none;
   display: flex;
   min-width: 250px;
-  max-width: 300px;
+  max-width: 350px;
   min-height: 300px;
-  max-height: 300px;
+  max-height: 400px;
   margin: auto 5px;
+  padding: 5px;
+  border: none;
   flex-direction: column;
 }
 
@@ -286,13 +221,13 @@
   transition: all 0.3s ease;
   max-width: 100% ;
   min-width: 100% ;
-  margin-top: 1px;
-  padding-bottom: 10px;
-
+  margin-top: 5px;
+  padding-bottom: 5px;
+  border: none;
+  background: none;
 }
 
 article img:hover {
-  transform: scale(1.00) translateY(-1px);
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.3);
   filter: brightness(1.0);
   opacity: 0.90;

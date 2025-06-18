@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import api from '../../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiOutlineBan } from 'react-icons/hi';
-import { FaSearch } from 'react-icons/fa';
 import './home.css';
 
 const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
@@ -15,9 +14,7 @@ function Home() {
   const [topRatedSeries, setTopRatedSeries] = useState([]);
   const [activeCategory, setActiveCategory] = useState('airing');
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   const seriesCategories = [
     { id: 'airing', name: 'Em Exibição', data: airingToday },
@@ -162,89 +159,7 @@ function Home() {
     loadData();
   }, [loadFilmes, loadSeries]);
 
-  const searchWithFallback = useCallback(async (type) => {
-    try {
-      // Primeiro tenta em português
-      const ptResponse = await api.get(`search/${type}`, {
-        params: {
-          api_key: API_KEY,
-          language: "pt-BR",
-          query: searchTerm,
-          page: 1,
-        }
-      });
 
-      // Se não encontrar resultados em português, tenta em inglês
-      if (!ptResponse.data.results?.length) {
-        const enResponse = await api.get(`search/${type}`, {
-          params: {
-            api_key: API_KEY,
-            language: "en-US",
-            query: searchTerm,
-            page: 1,
-          }
-        });
-        return enResponse.data.results;
-      }
-      return ptResponse.data.results;
-    } catch (error) {
-      // Se der erro, tenta em inglês
-      const enResponse = await api.get(`search/${type}`, {
-        params: {
-          api_key: API_KEY,
-          language: "en-US",
-          query: searchTerm,
-          page: 1,
-        }
-      });
-      return enResponse.data.results;
-    }
-  }, [searchTerm]);
-
-  const handleSearch = useCallback(async (e) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Buscar filmes e séries simultaneamente
-      const [movies, tvShows] = await Promise.all([
-        searchWithFallback('movie'),
-        searchWithFallback('tv')
-      ]);
-
-      // Adicionar media_type aos resultados e combiná-los
-      const combinedResults = [
-        ...movies.map(movie => ({
-          ...movie,
-          media_type: 'movie',
-          title: movie.title || movie.name,
-          name: movie.name || movie.title
-        })),
-        ...tvShows.map(tv => ({
-          ...tv,
-          media_type: 'tv',
-          title: tv.title || tv.name,
-          name: tv.name || tv.title
-        }))
-      ];
-
-      navigate(`/search/${encodeURIComponent(searchTerm)}`, {
-        state: {
-          results: combinedResults,
-          type: 'all',
-          searchTerm: searchTerm
-        }
-      });
-    } catch (error) {
-      console.error('Erro ao buscar conteúdo:', error);
-      setError('Erro ao buscar conteúdo. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  }, [searchTerm, searchWithFallback, navigate]);
 
   if (loading) {
     return (
@@ -339,23 +254,6 @@ function Home() {
           ))}
         </div>
       </div>
-      <div className="search-container">
-        <form onSubmit={handleSearch} className="search-form">
-          <div className="search-input-container">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-              placeholder="Buscar filmes e séries..."
-              aria-label="Buscar filmes e séries"
-            />
-          </div>
-          <button type="submit" className="search-button">Buscar</button>
-        </form>
-      </div>
-
       {renderCategoryButtons()}
       {renderActiveSeries()}
     </div>
