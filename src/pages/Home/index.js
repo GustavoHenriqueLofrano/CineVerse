@@ -81,9 +81,9 @@ function Home() {
           // Tenta buscar em português primeiro
           let response = await api.get(endpoint.url, {
             params: {
-              api_key: API_KEY,
               language: "pt-BR",
               page: 1,
+              include_image_language: "pt,en,null"
             }
           });
 
@@ -91,51 +91,45 @@ function Home() {
           if (!response.data.results?.length) {
             response = await api.get(endpoint.url, {
               params: {
-                api_key: API_KEY,
                 language: "en-US",
                 page: 1,
+                include_image_language: "en,null"
               }
             });
           }
-          return response.data.results.slice(0, 15);
+          
+          // Garante que os dados tenham o formato correto
+          return response.data.results.slice(0, 15).map(serie => ({
+            ...serie,
+            // Garante que o poster_path tenha o formato correto
+            poster_path: serie.poster_path 
+              ? `https://image.tmdb.org/t/p/w300${serie.poster_path}`
+              : null
+          }));
+          
         } catch (error) {
-          console.error(`Erro ao buscar ${endpoint.name} em português:`, error);
-          // Se der erro, tenta em inglês
-          try {
-            const response = await api.get(endpoint.url, {
-              params: {
-                api_key: API_KEY,
-                language: "en-US",
-                page: 1,
-              }
-            });
-            return response.data.results.slice(0, 10);
-          } catch (error) {
-            console.error(`Erro ao buscar ${endpoint.name} em inglês:`, error);
-            throw error;
-          }
+          console.error(`Erro ao buscar ${endpoint.name}:`, error);
+          return [];
         }
       };
 
       // Busca todas as categorias em paralelo
       const results = await Promise.all(
-        endpoints.map(endpoint =>
-          fetchWithFallback(endpoint)
-            .then(data => ({ setter: endpoint.setter, data }))
-            .catch(error => {
-              console.error(`Erro ao carregar ${endpoint.name}:`, error);
-              return { setter: endpoint.setter, data: [] };
-            })
-        )
+        endpoints.map(async (endpoint) => {
+          try {
+            const data = await fetchWithFallback(endpoint);
+            console.log(`Dados carregados para ${endpoint.name}:`, data);
+            return { setter: endpoint.setter, data };
+          } catch (error) {
+            console.error(`Erro ao carregar ${endpoint.name}:`, error);
+            return { setter: endpoint.setter, data: [] };
+          }
+        })
       );
 
       // Atualiza os estados com os resultados
       results.forEach(({ setter, data }) => {
-        console.log('Dados recebidos:', data);
-        if (data && data.length > 0) {
-          console.log('Primeiro item:', data[0]);
-          console.log('Caminho do poster:', data[0].poster_path);
-        }
+        console.log('Atualizando estado com dados:', data);
         setter(data);
       });
 
@@ -280,12 +274,15 @@ function Home() {
           {activeCategoryData.data.map((item) => (
             <article key={`${activeCategory}-${item.id}`} className="movie-card">
               <strong>{item.name || item.title}</strong>
-              <Link to={`/serie/${item.id}-${(item.name || item.title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="movie-link">
-                {item.poster_path ? (
-                  <div className="poster-container">
+              <Link 
+                to={`/serie/${item.id}-${(item.name || item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} 
+                className="movie-link"
+              >
+                <div className="poster-container">
+                  {item.poster_path ? (
                     <img
-                      src={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                      alt={item.name || item.title}
+                      src={item.poster_path}
+                      alt={item.name || item.title || 'Série sem título'}
                       onError={(e) => {
                         console.error('Erro ao carregar a imagem:', e.target.src);
                         e.target.onerror = null;
@@ -293,14 +290,15 @@ function Home() {
                       }}
                       className="movie-poster"
                       onLoad={() => console.log('Imagem carregada:', item.poster_path)}
+                      loading="lazy"
                     />
-                  </div>
-                ) : (
-                  <div className="no-poster">
-                    <HiOutlineBan className="no-poster-icon" />
-                    <span>Sem imagem</span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="no-poster">
+                      <HiOutlineBan className="no-poster-icon" />
+                      <span>Sem imagem</span>
+                    </div>
+                  )}
+                </div>
               </Link>
             </article>
           ))}
