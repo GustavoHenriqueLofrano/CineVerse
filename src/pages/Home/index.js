@@ -9,6 +9,7 @@ const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 function Home() {
   const [filmes, setFilmes] = useState([]);
+  const [trailers, setTrailers] = useState([]);
   const [airingToday, setAiringToday] = useState([]);
   const [popularSeries, setPopularSeries] = useState([]);
   const [topRatedSeries, setTopRatedSeries] = useState([]);
@@ -62,6 +63,75 @@ function Home() {
     } catch (error) {
       console.error('Erro ao carregar filmes em cartaz:', error);
       setError('Erro ao carregar filmes em cartaz. Tente novamente mais tarde.');
+    }
+  }, []);
+
+  const loadLatestTrailers = useCallback(async () => {
+    try {
+      // Busca os filmes mais recentes
+      const [moviesResponse, seriesResponse] = await Promise.all([
+        api.get("movie/upcoming", {
+          params: {
+            api_key: API_KEY,
+            language: "pt-BR",
+            page: 1,
+            region: "BR"
+          }
+        }),
+        api.get("tv/on_the_air", {
+          params: {
+            api_key: API_KEY,
+            language: "pt-BR",
+            page: 1
+          }
+        })
+      ]);
+
+      // Pega os filmes e séries mais recentes
+      const latestMovies = moviesResponse.data.results.slice(0, 10);
+      const latestSeries = seriesResponse.data.results.slice(0, 10);
+      
+      // Função para buscar trailers
+      const fetchMediaTrailers = async (media, isMovie = true) => {
+        try {
+          const mediaType = isMovie ? 'movie' : 'tv';
+          const videosResponse = await api.get(`${mediaType}/${media.id}/videos`, {
+            params: {
+              api_key: API_KEY,
+              language: "pt-BR"
+            }
+          });
+          
+          // Pega o primeiro trailer
+          const trailer = videosResponse.data.results.find(
+            (video) => video.type === "Trailer" && video.site === "YouTube"
+          );
+          
+          return trailer ? {
+            id: media.id,
+            title: isMovie ? media.title : media.name,
+            key: trailer.key,
+            backdrop_path: media.backdrop_path,
+            media_type: mediaType
+          } : null;
+        } catch (error) {
+          console.error(`Erro ao buscar vídeos do ${isMovie ? 'filme' : 'série'} ${media.id}:`, error);
+          return null;
+        }
+      };
+
+      // Busca trailers para filmes e séries
+      const moviePromises = latestMovies.map(movie => fetchMediaTrailers(movie, true));
+      const seriesPromises = latestSeries.map(serie => fetchMediaTrailers(serie, false));
+      
+      const [movieTrailers, seriesTrailers] = await Promise.all([
+        Promise.all(moviePromises),
+        Promise.all(seriesPromises)
+      ]);
+
+      setTrailers(movieTrailers, seriesTrailers);
+    } catch (error) {
+      console.error('Erro ao carregar trailers:', error);
     }
   }, []);
 
@@ -147,7 +217,11 @@ function Home() {
       setLoading(true);
       setError(null);
       try {
-        await Promise.all([loadFilmes(), loadSeries()]);
+        await Promise.all([
+          loadFilmes(),
+          loadSeries(),
+          loadLatestTrailers()
+        ]);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
         setError('Erro ao carregar os dados. Por favor, tente novamente.');
@@ -157,9 +231,43 @@ function Home() {
     };
 
     loadData();
-  }, [loadFilmes, loadSeries]);
+  }, [loadFilmes, loadSeries, loadLatestTrailers]);
 
 
+
+
+  // Renderiza a seção de trailers
+  const renderTrailers = () => (
+    <div className="trailers-section">
+      <h2>Últimos Trailers</h2>
+      <div className="trailers-container">
+        {trailers.map((trailer) => (
+          trailer?.key && (
+            <Link 
+              key={`${trailer.media_type}-${trailer.id}`} 
+              to={`/${trailer.media_type}/${trailer.id}`}
+              className="trailer-link"
+            >
+              <div className="trailer-item">
+                <h3>{trailer.title} <span className="media-type-badge">{trailer.media_type === 'movie' ? 'Filme' : 'Série'}</span></h3>
+                <div className="trailer-video">
+                  <iframe
+                    width="300"
+                    height="169"
+                    src={`https://www.youtube.com/embed/${trailer.key}`}
+                    title={`Trailer de ${trailer.title}`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            </Link>
+          )
+        ))}
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -229,6 +337,7 @@ function Home() {
 
   return (
     <div className="home-container">
+      {trailers.length > 0 && renderTrailers()}
       <div className="movies-section">
         <h1>Filmes em Cartaz</h1>
         <div className="movies-container">
