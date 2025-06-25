@@ -68,9 +68,25 @@ function Home() {
 
   const loadLatestTrailers = useCallback(async () => {
     try {
-      // Busca os filmes mais recentes
-      const [moviesResponse, seriesResponse] = await Promise.all([
+      // Busca os filmes e séries mais recentes em paralelo
+      const [upcomingMovies, topRatedMovies, popularMovies, onAirSeries] = await Promise.all([
         api.get("movie/upcoming", {
+          params: {
+            api_key: API_KEY,
+            language: "pt-BR",
+            page: 1,
+            region: "BR"
+          }
+        }),
+        api.get("movie/top_rated", {
+          params: {
+            api_key: API_KEY,
+            language: "pt-BR",
+            page: 1,
+            region: "BR"
+          }
+        }),
+        api.get("movie/popular", {
           params: {
             api_key: API_KEY,
             language: "pt-BR",
@@ -87,9 +103,17 @@ function Home() {
         })
       ]);
 
-      // Pega os filmes e séries mais recentes
-      const latestMovies = moviesResponse.data.results.slice(0, 10);
-      const latestSeries = seriesResponse.data.results.slice(0, 10);
+
+      // Combina e remove duplicados
+      const allMedia = [
+        ...upcomingMovies.data.results,
+        ...topRatedMovies.data.results,
+        ...popularMovies.data.results,
+        ...onAirSeries.data.results
+      ];
+
+      // Remove duplicados baseado no ID
+      const uniqueMedia = Array.from(new Map(allMedia.map(item => [item.id, item])).values());
       
       // Função para buscar trailers
       const fetchMediaTrailers = async (media, isMovie = true) => {
@@ -112,7 +136,10 @@ function Home() {
             title: isMovie ? media.title : media.name,
             key: trailer.key,
             backdrop_path: media.backdrop_path,
-            media_type: mediaType
+            media_type: mediaType,
+            overview: media.overview,
+            vote_average: media.vote_average,
+            release_date: isMovie ? media.release_date : media.first_air_date
           } : null;
         } catch (error) {
           console.error(`Erro ao buscar vídeos do ${isMovie ? 'filme' : 'série'} ${media.id}:`, error);
@@ -120,16 +147,22 @@ function Home() {
         }
       };
 
-      // Busca trailers para filmes e séries
-      const moviePromises = latestMovies.map(movie => fetchMediaTrailers(movie, true));
-      const seriesPromises = latestSeries.map(serie => fetchMediaTrailers(serie, false));
-      
-      const [movieTrailers, seriesTrailers] = await Promise.all([
-        Promise.all(moviePromises),
-        Promise.all(seriesPromises)
-      ]);
+      // Busca trailers para todos os itens únicos (limite de 20 para não sobrecarregar)
+      const mediaWithTrailers = await Promise.all(
+        uniqueMedia.slice(0, 30).map(media => 
+          fetchMediaTrailers(media, media.media_type !== 'tv')
+        )
+      );
 
-      setTrailers(movieTrailers, seriesTrailers);
+      // Filtra apenas os itens que têm trailer e remove possíveis duplicados
+      const validTrailers = mediaWithTrailers
+        .filter(Boolean)
+        .filter((trailer, index, self) => 
+          index === self.findIndex(t => t.key === trailer.key)
+        )
+        .slice(0, 20); // Limita a 20 trailers para não sobrecarregar a UI
+
+      setTrailers(validTrailers);
     } catch (error) {
       console.error('Erro ao carregar trailers:', error);
     }
@@ -245,11 +278,11 @@ function Home() {
           trailer?.key && (
             <Link 
               key={`${trailer.media_type}-${trailer.id}`} 
-              to={`/${trailer.media_type}/${trailer.id}`}
+              to={`/filme/${trailer.id}`}
               className="trailer-link"
             >
               <div className="trailer-item">
-                <h3>{trailer.title} <span className="media-type-badge">{trailer.media_type === 'movie' ? 'Filme' : 'Série'}</span></h3>
+                <h3>{trailer.title}</h3>
                 <div className="trailer-video">
                   <iframe
                     width="300"
