@@ -224,8 +224,6 @@ function Home() {
             })
         )
       );
-
-      // Atualiza os estados com os resultados
       results.forEach(({ setter, data }) => {
         console.log('Dados recebidos:', data);
         if (data && data.length > 0) {
@@ -262,10 +260,6 @@ function Home() {
     loadData();
   }, [loadFilmes, loadSeries, loadLatestTrailers]);
 
-
-
-
-  // Renderiza a seção de trailers
   const renderTrailers = () => (
     <div className="trailers-section">
       <h2>Últimos Trailers</h2>
@@ -305,7 +299,6 @@ function Home() {
       </div>
     );
   }
-  // Função para renderizar os botões de categoria
   const renderCategoryButtons = () => (
     <div className="series-buttons">
       {seriesCategories.map((category) => (
@@ -320,7 +313,6 @@ function Home() {
     </div>
   );
 
-  // Função para renderizar as séries ativas
   const renderActiveSeries = () => {
     const activeCategoryData = seriesCategories.find(cat => cat.id === activeCategory);
     if (!activeCategoryData) return null;

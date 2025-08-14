@@ -154,13 +154,11 @@ function Filme() {
       const hasItem = savedItems.some(item => item.id === filme.id && item.media_type === 'movie');
       
       if (hasItem) {
-        // Remover da lista
         savedItems = savedItems.filter(item => !(item.id === filme.id && item.media_type === 'movie'));
         localStorage.setItem("@CineVerse", JSON.stringify(savedItems));
         setIsSaved(false);
         alert("Filme removido da sua lista!");
       } else {
-        // Adicionar à lista
         const itemToSave = {
           id: filme.id,
           title: filme.title,
@@ -272,7 +270,6 @@ function Filme() {
         </div>
       </div>
 
-      {/* Modal do trailer */}
       {showTrailerModal && trailerKey && (
         <div className="trailer-modal">
           <div className="trailer-modal-content">
