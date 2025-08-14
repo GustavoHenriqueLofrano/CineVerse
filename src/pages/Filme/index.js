@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './filme.css';
 import api from '../../services/api';
 import { PiStarFill } from "react-icons/pi";
-import { FaChevronDown, FaChevronUp, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 
 function Filme() {
   const { id } = useParams();
@@ -32,7 +32,6 @@ function Filme() {
         setLoading(true);
         setError(null);
 
-        // Buscar detalhes do filme e vídeos em paralelo
         const [filmeResponse, videosResponse] = await Promise.all([
           api.get(`/movie/${id}`, {
             params: {
@@ -40,7 +39,6 @@ function Filme() {
               append_to_response: 'credits,external_ids,images,release_dates,similar'
             }
           }).catch(async () => {
-            // Se falhar em português, tenta em inglês
             return api.get(`/movie/${id}`, {
               params: {
                 language: 'en-US',
@@ -53,14 +51,11 @@ function Filme() {
           })
         ]);
 
-        // Formatar os dados do filme
         const filmeData = {
           ...filmeResponse.data,
-          // Converter data para formato brasileiro
           release_date: filmeResponse.data.release_date ?
             new Date(filmeResponse.data.release_date).toLocaleDateString('pt-BR') :
             'Data não disponível',
-          // Formatar duração
           runtime: filmeResponse.data.runtime ?
             `${Math.floor(filmeResponse.data.runtime / 60)}h ${filmeResponse.data.runtime % 60}min` :
             'Duração não disponível'
@@ -68,7 +63,6 @@ function Filme() {
 
         setFilme(filmeData);
 
-        // Encontrar trailer
         const trailer = videosResponse.data.results?.find(
           video => video.type === "Trailer" && video.site === "YouTube"
         ) || videosResponse.data.results?.[0];

@@ -32,16 +32,14 @@
   min-height: 100vh;
 }
 
-/* Estilo para o cabeçalho da série */
 .serie-header {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 30px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   position: relative;
 }
 
-/* Container para o título e o botão de salvar */
 .serie-title-container {
   position: relative;
   display: flex;
@@ -49,7 +47,6 @@
   margin-bottom: 15px;
 }
 
-/* Estilo para o botão de salvar */
 .save-button {
   background: none;
   border: none;
@@ -134,7 +131,6 @@
   margin-bottom: 20px;
 }
 
-/* ===== SEÇÕES ===== */
 .seasons-section {
   margin-top: 40px;
 }

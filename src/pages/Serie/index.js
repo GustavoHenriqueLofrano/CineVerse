@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 import './serie.css';
 import { PiStarFill } from "react-icons/pi";
-import { FaPlay } from 'react-icons/fa';
 import { FaRegBookmark } from 'react-icons/fa';
 import { FaBookmark } from 'react-icons/fa';
 
@@ -19,13 +18,11 @@ function Serie() {
   const [errorEpisodes, setErrorEpisodes] = useState({});
   const [isSaved, setIsSaved] = useState(false);
   
-  // Efeito para depuração
   useEffect(() => {
     console.log('Episódios carregados:', episodes);
     console.log('Temporadas expandidas:', expandedSeasons);
   }, [episodes, expandedSeasons]);
 
-  // Verifica se a série atual está na lista de salvos
   useEffect(() => {
     if (!serie.id) return;
     
@@ -35,8 +32,6 @@ function Serie() {
   }, [serie.id]);
 
 
-
-  // Função para salvar/remover a série da lista
   const saveSerie = () => {
     try {
       const myList = JSON.parse(localStorage.getItem('@CineVerse') || '[]');
@@ -53,11 +48,9 @@ function Serie() {
 
       let updatedList;
       if (isSaved) {
-        // Remove a série da lista
         updatedList = myList.filter(item => !(item.id === serie.id && item.media_type === 'tv'));
         setIsSaved(false);
       } else {
-        // Adiciona a série à lista
         updatedList = [...myList, serieData];
         setIsSaved(true);
       }
@@ -93,14 +86,12 @@ function Serie() {
 
         setSerie(serieData);
         
-        // Primeiro, verifica se temos informações detalhadas das temporadas
         let seasonsData = [];
         
         if (response.data.seasons && response.data.seasons.length > 0) {
-          // Se temos os dados das temporadas, usamos eles
           seasonsData = response.data.seasons
-            .filter(season => season.season_number > 0) // Ignora temporadas especiais (season_number: 0)
-            .sort((a, b) => a.season_number - b.season_number) // Ordena as temporadas
+            .filter(season => season.season_number > 0)
+            .sort((a, b) => a.season_number - b.season_number) 
             .map(season => ({
               season_number: season.season_number,
               name: season.name || `Temporada ${season.season_number}`,
@@ -110,13 +101,12 @@ function Serie() {
               overview: season.overview
             }));
         } else {
-          // Se não temos os dados detalhados, criamos um array básico
           seasonsData = Array.from(
             { length: response.data.number_of_seasons },
             (_, i) => ({
               season_number: i + 1,
               name: `Temporada ${i + 1}`,
-              episode_count: 0, // Inicializa como 0, será atualizado quando a temporada for expandida
+              episode_count: 0,
               air_date: '',
               poster_path: null
             })
@@ -149,10 +139,8 @@ function Serie() {
     const cacheKey = `${serieId}-${seasonNumber}`;
     
     try {
-      // Se já está carregando, não faz nada
       if (loadingEpisodes[cacheKey]) return;
       
-      // Limpa qualquer erro anterior
       setErrorEpisodes(prev => ({ ...prev, [cacheKey]: null }));
       setLoadingEpisodes(prev => ({ ...prev, [cacheKey]: true }));
       
@@ -163,15 +151,33 @@ function Serie() {
         }
       });
       
-      const episodesList = response.data.episodes || [];
       
-      // Atualiza o contador de episódios da temporada
+      const processedEpisodes = (response.data.episodes || []).map(episode => ({
+        ...episode,
+      
+        episode_number: episode.episode_number || 0,
+      
+        air_date: episode.air_date 
+          ? new Date(episode.air_date).toLocaleDateString('pt-BR') 
+          : 'Data não disponível',
+       
+        still_path: episode.still_path 
+          ? `https://image.tmdb.org/t/p/w300${episode.still_path}`
+          : 'https://via.placeholder.com/300x169?text=Sem+imagem',
+        guest_stars: episode.guest_stars || [],
+        crew: episode.crew || []
+      }));
+
+      const sortedEpisodes = [...processedEpisodes].sort((a, b) => 
+        (a.episode_number || 0) - (b.episode_number || 0)
+      );
+
       setSeasons(prevSeasons => 
         prevSeasons.map(season => 
           season.season_number === seasonNumber 
             ? { 
                 ...season, 
-                episode_count: episodesList.length,
+                episode_count: sortedEpisodes.length,
                 air_date: season.air_date || response.data.air_date,
                 overview: season.overview || response.data.overview,
                 poster_path: season.poster_path || response.data.poster_path
@@ -180,23 +186,12 @@ function Serie() {
         )
       );
       
-      // Formata os dados dos episódios
-      const formattedEpisodes = episodesList.map(episode => ({
-        ...episode,
-        air_date: episode.air_date ? new Date(episode.air_date).toLocaleDateString('pt-BR') : 'Data não disponível',
-        still_path: episode.still_path 
-          ? `https://image.tmdb.org/t/p/w300${episode.still_path}`
-          : 'https://via.placeholder.com/300x169?text=Sem+imagem',
-        guest_stars: episode.guest_stars || [],
-        crew: episode.crew || []
-      }));
-      
       setEpisodes(prev => ({
         ...prev,
-        [cacheKey]: formattedEpisodes
+        [cacheKey]: sortedEpisodes
       }));
       
-      return formattedEpisodes;
+      return sortedEpisodes;
       
     } catch (err) {
       console.error(`Erro ao carregar episódios da temporada ${seasonNumber}:`, err);
@@ -208,7 +203,7 @@ function Serie() {
     } finally {
       setLoadingEpisodes(prev => ({ ...prev, [cacheKey]: false }));
     }
-  }, [episodes]);
+  }, [episodes, loadingEpisodes]);
 
   const toggleSeason = useCallback(async (seasonNumber) => {
     console.log('Toggle temporada:', seasonNumber);
@@ -222,16 +217,13 @@ function Serie() {
     
     const cacheKey = `${serieId}-${seasonNumber}`;
     
-    // Se já está expandida, fecha
     if (expandedSeasons[seasonNumber]) {
       setExpandedSeasons({});
       return;
     }
     
-    // Se não está expandida, fecha todas as outras e abre esta
     setExpandedSeasons({ [seasonNumber]: true });
     
-    // Se já tem os episódios em cache, não precisa buscar de novo
     if (episodes[cacheKey] && episodes[cacheKey].length > 0) {
       return;
     }
@@ -240,7 +232,6 @@ function Serie() {
       await fetchEpisodes(serieId, seasonNumber);
     } catch (error) {
       console.error('Erro ao carregar episódios:', error);
-      // Em caso de erro, mantém a temporada expandida mas mostra mensagem de erro
       setErrorEpisodes(prev => ({
         ...prev,
         [cacheKey]: 'Não foi possível carregar os episódios. Tente novamente.'

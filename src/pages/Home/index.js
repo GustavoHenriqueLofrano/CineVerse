@@ -30,7 +30,7 @@ function Home() {
     try {
       let response;
       try {
-        // Primeiro tenta buscar em português
+
         response = await api.get("movie/now_playing", {
           params: {
             api_key: API_KEY,
@@ -39,7 +39,7 @@ function Home() {
           }
         });
 
-        // Se não encontrar resultados em português, tenta em inglês
+
         if (!response.data.results?.length) {
           response = await api.get("movie/now_playing", {
             params: {
@@ -50,7 +50,7 @@ function Home() {
           });
         }
       } catch (error) {
-        // Se der erro, tenta em inglês
+
         response = await api.get("movie/now_playing", {
           params: {
             api_key: API_KEY,
@@ -68,7 +68,7 @@ function Home() {
 
   const loadLatestTrailers = useCallback(async () => {
     try {
-      // Busca os filmes e séries mais recentes em paralelo
+
       const [upcomingMovies, topRatedMovies, popularMovies, onAirSeries] = await Promise.all([
         api.get("movie/upcoming", {
           params: {
@@ -104,7 +104,7 @@ function Home() {
       ]);
 
 
-      // Combina e remove duplicados
+
       const allMedia = [
         ...upcomingMovies.data.results,
         ...topRatedMovies.data.results,
@@ -112,10 +112,10 @@ function Home() {
         ...onAirSeries.data.results
       ];
 
-      // Remove duplicados baseado no ID
+
       const uniqueMedia = Array.from(new Map(allMedia.map(item => [item.id, item])).values());
-      
-      // Função para buscar trailers
+
+
       const fetchMediaTrailers = async (media, isMovie = true) => {
         try {
           const mediaType = isMovie ? 'movie' : 'tv';
@@ -125,12 +125,12 @@ function Home() {
               language: "pt-BR"
             }
           });
-          
-          // Pega o primeiro trailer
+
+
           const trailer = videosResponse.data.results.find(
             (video) => video.type === "Trailer" && video.site === "YouTube"
           );
-          
+
           return trailer ? {
             id: media.id,
             title: isMovie ? media.title : media.name,
@@ -147,20 +147,20 @@ function Home() {
         }
       };
 
-      // Busca trailers para todos os itens únicos (limite de 20 para não sobrecarregar)
+
       const mediaWithTrailers = await Promise.all(
-        uniqueMedia.slice(0, 30).map(media => 
+        uniqueMedia.slice(0, 30).map(media =>
           fetchMediaTrailers(media, media.media_type !== 'tv')
         )
       );
 
-      // Filtra apenas os itens que têm trailer e remove possíveis duplicados
+
       const validTrailers = mediaWithTrailers
         .filter(Boolean)
-        .filter((trailer, index, self) => 
+        .filter((trailer, index, self) =>
           index === self.findIndex(t => t.key === trailer.key)
         )
-        .slice(0, 20); // Limita a 20 trailers para não sobrecarregar a UI
+        .slice(0, 20);
 
       setTrailers(validTrailers);
     } catch (error) {
@@ -178,7 +178,7 @@ function Home() {
 
       const fetchWithFallback = async (endpoint) => {
         try {
-          // Tenta buscar em português primeiro
+
           let response = await api.get(endpoint.url, {
             params: {
               api_key: API_KEY,
@@ -187,7 +187,6 @@ function Home() {
             }
           });
 
-          // Se não encontrar resultados em português, tenta em inglês
           if (!response.data.results?.length) {
             response = await api.get(endpoint.url, {
               params: {
@@ -200,7 +199,6 @@ function Home() {
           return response.data.results.slice(0, 15);
         } catch (error) {
           console.error(`Erro ao buscar ${endpoint.name} em português:`, error);
-          // Se der erro, tenta em inglês
           try {
             const response = await api.get(endpoint.url, {
               params: {
@@ -216,8 +214,6 @@ function Home() {
           }
         }
       };
-
-      // Busca todas as categorias em paralelo
       const results = await Promise.all(
         endpoints.map(endpoint =>
           fetchWithFallback(endpoint)
@@ -276,8 +272,8 @@ function Home() {
       <div className="trailers-container">
         {trailers.map((trailer) => (
           trailer?.key && (
-            <Link 
-              key={`${trailer.media_type}-${trailer.id}`} 
+            <Link
+              key={`${trailer.media_type}-${trailer.id}`}
               to={`/filme/${trailer.id}`}
               className="trailer-link"
             >

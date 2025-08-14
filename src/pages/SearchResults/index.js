@@ -11,13 +11,11 @@ function SearchResults() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Get search term and results directly from state
     if (location.state) {
       const { results: searchResults, type } = location.state;
       setResults(searchResults || []);
       setLoading(false);
     } else {
-      // Handle case where state is not available
       setError('Nenhum resultado encontrado');
       setLoading(false);
     }

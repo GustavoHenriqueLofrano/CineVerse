@@ -15,7 +15,6 @@ function Header() {
 
   const searchWithFallback = useCallback(async (type) => {
     try {
-      // Primeiro tenta em português
       const ptResponse = await api.get(`search/${type}`, {
         params: {
           api_key: API_KEY,
@@ -25,7 +24,6 @@ function Header() {
         }
       });
 
-      // Se não encontrar resultados em português, tenta em inglês
       if (!ptResponse.data.results?.length) {
         const enResponse = await api.get(`search/${type}`, {
           params: {
@@ -39,7 +37,6 @@ function Header() {
       }
       return ptResponse.data.results;
     } catch (error) {
-      // Se der erro, tenta em inglês
       const enResponse = await api.get(`search/${type}`, {
         params: {
           api_key: API_KEY,
@@ -60,13 +57,11 @@ function Header() {
       setLoading(true);
       setError(null);
 
-      // Buscar filmes e séries simultaneamente
       const [movies, tvShows] = await Promise.all([
         searchWithFallback('movie'),
         searchWithFallback('tv')
       ]);
 
-      // Adicionar media_type aos resultados e combiná-los
       const combinedResults = [
         ...movies.map(movie => ({
           ...movie,
@@ -109,7 +104,7 @@ function Header() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
-              placeholder= "Buscar filmes e séries..."
+              placeholder="Buscar filmes e séries..."
               aria-label="Buscar filmes e séries"
               disabled={Loading}
             />
